@@ -1,7 +1,7 @@
 /// <reference lib="webworker" />
 import { defaultCache } from '@serwist/next/worker';
 import type { PrecacheEntry, SerwistGlobalConfig } from 'serwist';
-import { NetworkFirst, Serwist } from 'serwist';
+import { CacheableResponsePlugin, NetworkFirst, Serwist } from 'serwist';
 
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {
@@ -25,6 +25,18 @@ const serwist = new Serwist({
     {
       matcher: ({ url, sameOrigin }) => sameOrigin && url.pathname.startsWith('/data/'),
       handler: new NetworkFirst({ cacheName: 'app-data' }),
+    },
+    // Images locales (/images/*) : réseau d'abord -> toujours le vrai fichier.
+    // Sans cette règle, le cache runtime par défaut servait le shell HTML à la
+    // place du PNG (content-type text/html) -> <img> vide. On ne met en cache
+    // que les vraies réponses 200 (CacheableResponsePlugin), cache en secours
+    // hors ligne. cacheName neuf pour abandonner toute entrée empoisonnée.
+    {
+      matcher: ({ url, sameOrigin }) => sameOrigin && url.pathname.startsWith('/images/'),
+      handler: new NetworkFirst({
+        cacheName: 'app-images-v2',
+        plugins: [new CacheableResponsePlugin({ statuses: [200] })],
+      }),
     },
     ...defaultCache,
   ],

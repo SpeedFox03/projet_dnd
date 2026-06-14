@@ -60,7 +60,7 @@ function EntityPageInner() {
 
   return (
     <div className="relative h-full overflow-y-auto md:overflow-hidden">
-      <div className="flex min-h-full flex-col">
+      <div className="flex min-h-full flex-col md:h-full md:min-h-0">
         {/* Rangée du haut : fiche principale (+ coin haut-droite).
             Mobile : empilement vertical ; desktop : côte à côte. */}
         <div className="flex min-w-0 flex-col md:min-h-0 md:flex-1 md:flex-row">
