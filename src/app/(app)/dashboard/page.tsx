@@ -52,7 +52,6 @@ export default function DashboardPage() {
                     src={e.data.coverImage}
                     alt=""
                     className="h-36 w-full border-b border-border object-cover object-top opacity-90 transition-opacity group-hover:opacity-100"
-                    loading="lazy"
                   />
                 )}
                 <div className="p-3">

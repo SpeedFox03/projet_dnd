@@ -32,6 +32,14 @@ export async function resetLocal(): Promise<void> {
     await Promise.all(db.tables.map((t) => t.clear()));
   });
 
+  // 2b. Vider le Cache Storage du Service Worker (shell, données, images).
+  //     Sinon une réponse périmée (ex. image mise en cache avant déploiement)
+  //     continuerait d'être servie malgré le pull.
+  if (typeof caches !== 'undefined') {
+    const keys = await caches.keys();
+    await Promise.all(keys.map((k) => caches.delete(k)));
+  }
+
   // 3. Re-tirer depuis la base.
   if (navigator.onLine) {
     await syncEngine.syncAll();

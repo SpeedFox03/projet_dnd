@@ -33,7 +33,6 @@ function renderValue(field: FieldDef, value: unknown): React.ReactNode {
             src={src}
             alt={field.label}
             className="max-h-[420px] w-full rounded-md border border-border object-contain"
-            loading="lazy"
           />
         </a>
       );
