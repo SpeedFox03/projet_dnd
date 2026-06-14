@@ -84,7 +84,7 @@ export function EntityEditor({
         persist(v);
         onDone?.();
       })}
-      className="mx-auto max-w-3xl px-4 py-5 sm:px-6 sm:py-6"
+      className="px-4 py-5 sm:px-8 sm:py-6"
     >
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-sm font-semibold text-accent">Édition — {category.name}</h2>

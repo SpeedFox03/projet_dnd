@@ -28,7 +28,7 @@ export function EntityView({ entityId }: { entityId: string }) {
   }
 
   return (
-    <article className="mx-auto max-w-3xl px-4 py-5 sm:px-6 sm:py-6">
+    <article className="px-4 py-5 sm:px-8 sm:py-6">
       <header className="mb-6 border-b border-border pb-4">
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <span className="rounded bg-bg-soft px-2 py-0.5 text-xs text-zinc-400">

@@ -15,7 +15,7 @@ function SearchInner() {
   const initial = params.get('q') ?? '';
 
   const [q, setQ] = useState(initial);
-  const [catId, setCatId] = useState('');
+  const [catId, setCatId] = useState(params.get('cat') ?? '');
   const [results, setResults] = useState<EntityRecord[]>([]);
 
   const categories = useLiveQuery(

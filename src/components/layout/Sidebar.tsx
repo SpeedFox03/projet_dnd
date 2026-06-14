@@ -74,9 +74,6 @@ export function Sidebar() {
           <NavLink href="/dashboard" active={pathname === '/dashboard'} onNavigate={closeSidebar}>
             Tableau de bord
           </NavLink>
-          <NavLink href="/search" active={pathname.startsWith('/search')} onNavigate={closeSidebar}>
-            Recherche
-          </NavLink>
         </nav>
 
         <div className="mt-1 flex-1 overflow-y-auto pb-4">
