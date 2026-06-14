@@ -2,6 +2,7 @@ import { Sidebar } from '@/components/layout/Sidebar';
 import { Topbar } from '@/components/layout/Topbar';
 import { TabBar } from '@/components/layout/TabBar';
 import { StatusBar } from '@/components/layout/StatusBar';
+import { DiceResult } from '@/components/dice/DiceResult';
 
 /**
  * Shell "écran MJ" : sidebar + topbar (recherche) + onglets + zone principale
@@ -20,6 +21,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
       </div>
       <StatusBar />
+      <DiceResult />
     </div>
   );
 }

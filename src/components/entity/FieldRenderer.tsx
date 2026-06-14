@@ -2,6 +2,7 @@
 
 import type { FieldDef } from '@/types/domain';
 import { RichText } from './RichText';
+import { renderRollableText } from '@/components/dice/Rollable';
 
 /**
  * Rend UNE valeur de champ en lecture seule, selon son `type` déclaré dans le
@@ -60,18 +61,20 @@ function renderValue(field: FieldDef, value: unknown): React.ReactNode {
       return (
         <ul className="list-disc space-y-1 pl-5">
           {(value as string[]).map((item, i) => (
-            <li key={i}>{item}</li>
+            <li key={i}>{renderRollableText(String(item))}</li>
           ))}
         </ul>
       );
 
     case 'object':
+      // Ex. caractéristiques d'un monstre : "12 (+1)". Le modificateur devient
+      // cliquable -> jet 1d20 + modificateur, étiqueté par la stat (SAG, FOR…).
       return (
         <div className="grid grid-cols-2 gap-x-4 gap-y-1 sm:grid-cols-3">
           {Object.entries(value as Record<string, unknown>).map(([k, v]) => (
             <div key={k} className="flex justify-between gap-2 rounded bg-bg-soft px-2 py-1">
               <span className="uppercase text-zinc-500">{k}</span>
-              <span className="font-medium text-zinc-100">{String(v)}</span>
+              <span className="font-medium text-zinc-100">{renderRollableText(String(v), k)}</span>
             </div>
           ))}
         </div>
@@ -83,6 +86,6 @@ function renderValue(field: FieldDef, value: unknown): React.ReactNode {
       return <RichText text={String(value)} />;
 
     default:
-      return <span>{String(value)}</span>;
+      return <span>{renderRollableText(String(value))}</span>;
   }
 }
