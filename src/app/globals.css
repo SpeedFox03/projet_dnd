@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-bg text-zinc-200 antialiased;
+}
+
+/* Scrollbars discrètes adaptées au thème sombre */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2a2a32 transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #2a2a32;
+  border-radius: 6px;
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium
+           transition-colors disabled:opacity-50;
+  }
+  .btn-accent {
+    @apply btn bg-accent text-bg hover:bg-accent-soft;
+  }
+  .btn-ghost {
+    @apply btn text-zinc-300 hover:bg-bg-hover;
+  }
+  .input {
+    @apply w-full rounded-md border border-border bg-bg-soft px-3 py-2 text-sm
+           text-zinc-100 placeholder-zinc-500 outline-none focus:border-accent;
+  }
+  .card {
+    @apply rounded-lg border border-border bg-bg-panel;
+  }
+}

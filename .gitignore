@@ -1,0 +1,24 @@
+# dépendances
+/node_modules
+
+# build Next
+/.next
+/out
+
+# env (ne jamais committer les vraies clés)
+.env
+.env.local
+.env*.local
+
+# PWA généré
+/public/sw.js
+/public/sw.js.map
+/public/swe-worker-*.js
+
+# sources PDF locales (non distribuées)
+/info_dnd
+
+# divers
+.DS_Store
+*.log
+/coverage

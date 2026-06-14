@@ -1,0 +1,43 @@
+{
+  "name": "projet-dnd",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Base de connaissances offline-first pour maître du jeu (PWA).",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "build:info-dnd": "node scripts/build-info-dnd.mjs",
+    "ocr:info-dnd": "node scripts/ocr-info-dnd.mjs",
+    "import:info-dnd": "node scripts/import-info-dnd.mjs"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^3.9.0",
+    "@supabase/ssr": "^0.5.2",
+    "@supabase/supabase-js": "^2.45.0",
+    "@tanstack/react-query": "^5.59.0",
+    "dexie": "^4.0.8",
+    "dexie-react-hooks": "^1.1.7",
+    "minisearch": "^7.1.0",
+    "next": "^15.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-hook-form": "^7.53.0",
+    "uuid": "^11.0.0",
+    "zod": "^3.23.8",
+    "zustand": "^5.0.0"
+  },
+  "devDependencies": {
+    "@serwist/next": "^9.0.0",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/uuid": "^10.0.0",
+    "autoprefixer": "^10.4.0",
+    "pdf-parse": "^2.4.5",
+    "serwist": "^9.0.0",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.6.0"
+  }
+}

@@ -1,0 +1,14 @@
+# Déploiement Netlify — app Next.js 15 (App Router + middleware Supabase + PWA serwist).
+# Le runtime Next.js officiel (@netlify/plugin-nextjs) gère le SSR, le middleware
+# et les routes dynamiques. Netlify l'installe automatiquement via ce plugin.
+
+[build]
+  command = "pnpm build"
+  # Le répertoire de publication est géré par le plugin Next.js (.next).
+
+[build.environment]
+  NODE_VERSION = "22"
+  PNPM_VERSION = "11.6.0"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
