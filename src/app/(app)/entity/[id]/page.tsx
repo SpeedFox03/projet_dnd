@@ -59,12 +59,13 @@ function EntityPageInner() {
   }
 
   return (
-    <div className="relative h-full">
-      <div className="flex h-full flex-col">
-        {/* Rangée du haut : fiche principale (+ coin haut-droite). */}
-        <div className="flex min-h-0 flex-1">
-          <div className="flex min-w-0 flex-1 flex-col overflow-y-auto">
-            <div className="flex items-center justify-between gap-2 border-b border-border bg-bg-soft px-3 py-1.5">
+    <div className="relative h-full overflow-y-auto md:overflow-hidden">
+      <div className="flex min-h-full flex-col">
+        {/* Rangée du haut : fiche principale (+ coin haut-droite).
+            Mobile : empilement vertical ; desktop : côte à côte. */}
+        <div className="flex min-w-0 flex-col md:min-h-0 md:flex-1 md:flex-row">
+          <div className="flex min-w-0 flex-col md:flex-1 md:overflow-y-auto">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-bg-soft px-3 py-1.5">
               {entity ? (
                 <EntityActions
                   entity={entity}
@@ -104,7 +105,7 @@ function EntityPageInner() {
 
         {/* Rangée du bas : coins bas-gauche / bas-droite. */}
         {hasBottomRow && (
-          <div className="flex min-h-0 flex-1 border-t border-border">
+          <div className="flex min-w-0 flex-col md:min-h-0 md:flex-1 md:flex-row md:border-t md:border-border">
             {panes.bl && (
               <SplitPane corner="bl" entityId={panes.bl} onClose={() => setPane('bl', null)} />
             )}
@@ -115,9 +116,9 @@ function EntityPageInner() {
         )}
       </div>
 
-      {/* Zones de drop visibles uniquement pendant le glisser d'un onglet. */}
+      {/* Zones de drop : desktop uniquement (le drag HTML5 ne marche pas au tactile). */}
       {draggingTab && (
-        <div className="absolute inset-0 z-20 grid grid-cols-2 grid-rows-2">
+        <div className="absolute inset-0 z-20 hidden grid-cols-2 grid-rows-2 md:grid">
           <DropZone label="Coin haut-gauche (principal)" onDropId={(d) => dropOn('tl', d)} />
           <DropZone label="Coin haut-droite" onDropId={(d) => dropOn('tr', d)} />
           <DropZone label="Coin bas-gauche" onDropId={(d) => dropOn('bl', d)} />
@@ -138,13 +139,13 @@ function SplitPane({
   onClose: () => void;
 }) {
   return (
-    <div className="flex min-w-0 flex-1 flex-col overflow-hidden border-l border-border first:border-l-0">
+    <div className="flex min-w-0 flex-col border-t border-border md:flex-1 md:overflow-hidden md:border-l md:border-t-0 md:first:border-l-0">
       <div className="flex items-center justify-end border-b border-border bg-bg-soft px-3 py-1">
         <button className="text-xs text-zinc-500 hover:text-zinc-200" onClick={onClose}>
           Fermer le panneau ×
         </button>
       </div>
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      <div className="md:min-h-0 md:flex-1 md:overflow-y-auto">
         <EntityView entityId={entityId} />
       </div>
     </div>

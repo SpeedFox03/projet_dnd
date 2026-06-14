@@ -31,7 +31,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-6">
+    <div className="mx-auto max-w-4xl px-4 py-5 sm:px-6 sm:py-6">
       <h1 className="text-xl font-semibold text-zinc-100">Tableau de bord</h1>
       <p className="mt-1 text-sm text-zinc-500">{total} fiche(s) disponibles hors ligne.</p>
 

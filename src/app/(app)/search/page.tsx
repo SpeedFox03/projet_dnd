@@ -55,8 +55,8 @@ function SearchInner() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-6">
-      <div className="flex gap-2">
+    <div className="mx-auto max-w-3xl px-4 py-5 sm:px-6 sm:py-6">
+      <div className="flex flex-col gap-2 sm:flex-row">
         <input
           autoFocus
           className="input text-base"
@@ -65,7 +65,7 @@ function SearchInner() {
           onChange={(e) => setQ(e.target.value)}
         />
         <select
-          className="input max-w-[12rem] py-1.5"
+          className="input py-1.5 sm:max-w-[12rem]"
           value={catId}
           onChange={(e) => setCatId(e.target.value)}
         >

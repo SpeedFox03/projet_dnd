@@ -37,18 +37,20 @@ export function StatusBar() {
   const busy = syncing || resetting;
 
   return (
-    <footer className="flex h-7 items-center justify-between border-t border-border bg-bg-soft px-3 text-xs text-zinc-400">
-      <div className="flex items-center gap-3">
+    <footer className="flex h-7 items-center justify-between gap-2 border-t border-border bg-bg-soft px-2 text-xs text-zinc-400 sm:px-3">
+      <div className="flex min-w-0 items-center gap-2 sm:gap-3">
         <Dot color={online ? '#3fb950' : '#8b8b8b'} />
-        <span>{online ? 'En ligne' : 'Hors ligne'}</span>
-        {conflicts > 0 && <span className="text-red-400">⚠ {conflicts} conflit(s)</span>}
+        <span className="hidden sm:inline">{online ? 'En ligne' : 'Hors ligne'}</span>
+        {conflicts > 0 && (
+          <span className="truncate text-red-400">⚠ {conflicts} conflit(s)</span>
+        )}
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex shrink-0 items-center gap-2 sm:gap-3">
         {pending > 0 ? (
-          <span className="text-amber-400">{pending} en attente</span>
+          <span className="text-amber-400">{pending}<span className="hidden sm:inline"> en attente</span></span>
         ) : (
-          <span className="text-zinc-500">Synchronisé</span>
+          <span className="hidden text-zinc-500 sm:inline">Synchronisé</span>
         )}
         <button
           className="rounded px-2 py-0.5 hover:bg-bg-hover disabled:opacity-50"
@@ -56,7 +58,7 @@ export function StatusBar() {
           disabled={busy || !online}
           title="Vider le local et ne garder que le contenu de la base (sans fichiers perso)"
         >
-          {resetting ? 'Reset…' : 'Reset local'}
+          {resetting ? 'Reset…' : 'Reset'}
         </button>
         <button
           className="rounded px-2 py-0.5 hover:bg-bg-hover disabled:opacity-50"

@@ -84,9 +84,9 @@ export function EntityEditor({
         persist(v);
         onDone?.();
       })}
-      className="mx-auto max-w-3xl px-6 py-6"
+      className="mx-auto max-w-3xl px-4 py-5 sm:px-6 sm:py-6"
     >
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-sm font-semibold text-accent">Édition — {category.name}</h2>
         <div className="flex items-center gap-3 text-xs text-zinc-500">
           {savedAt && <span>Enregistré localement à {savedAt}</span>}
