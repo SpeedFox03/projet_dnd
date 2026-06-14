@@ -4,6 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/lib/db/local-db';
 import type { Category, EntityRecord, FieldDef } from '@/types/domain';
 import { FieldRenderer } from './FieldRenderer';
+import { renderRollableText } from '@/components/dice/Rollable';
 
 const KIND_LABEL: Record<EntityRecord['kind'], string> = {
   source: 'Source officielle',
@@ -42,7 +43,9 @@ export function EntityView({ entityId }: { entityId: string }) {
           )}
         </div>
         <h1 className="text-2xl font-semibold text-zinc-50">{entity.name}</h1>
-        {entity.summary && <p className="mt-1 text-zinc-400">{entity.summary}</p>}
+        {entity.summary && (
+          <p className="mt-1 text-zinc-400">{renderRollableText(entity.summary)}</p>
+        )}
         {entity.tags.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-1.5">
             {entity.tags.map((t) => (

@@ -49,6 +49,7 @@ const CAT = {
   reference: '10000000-0000-0000-0000-00000000000b',
   animal: '10000000-0000-0000-0000-00000000000c',
   weapon: '10000000-0000-0000-0000-00000000000d',
+  armor: '10000000-0000-0000-0000-00000000000e',
 };
 
 const f = (key, label, type, extra = {}) => ({ key, label, type, ...extra });
@@ -161,6 +162,28 @@ const categories = [
     { key: 'magic', label: 'Magie' },
     { key: 'source', label: 'Provenance' },
   ]),
+  category(CAT.armor, 'armor', 'Armures & boucliers', 'shield', [
+    f('type', 'Type', 'select', { options: ['Standard', 'Magique'] }),
+    f('armorCategory', 'Catégorie', 'select', { options: ['Légère', 'Intermédiaire', 'Lourde', 'Bouclier', 'Magique'] }),
+    f('baseArmor', 'Armure de base', 'text'),
+    f('ac', 'CA', 'text'),
+    f('strength', 'Force requise', 'text'),
+    f('stealth', 'Discrétion', 'text'),
+    f('price', 'Prix', 'text'),
+    f('weight', 'Poids', 'text'),
+    f('rarity', 'Rareté', 'text'),
+    f('bonus', 'Bonus', 'text'),
+    f('requiresAttunement', 'Harmonisation', 'boolean'),
+    f('description', 'Description', 'rich'),
+    f('sources', 'Sources repérées', 'list'),
+    f('sourceFile', 'Source principale', 'text'),
+    f('sourcePage', 'Page', 'number'),
+  ], [
+    { key: 'identity', label: 'Identité' },
+    { key: 'stats', label: 'Statistiques' },
+    { key: 'magic', label: 'Magie' },
+    { key: 'source', label: 'Provenance' },
+  ]),
   category(CAT.spell, 'spell', 'Sorts', 'sparkles', [
     f('level', 'Niveau', 'number'),
     f('school', 'École', 'text'),
@@ -191,8 +214,12 @@ const categories = [
   category(CAT.item, 'item', 'Objets & trésors', 'gem', [
     f('type', 'Type', 'text'),
     f('rarity', 'Rareté', 'text'),
+    f('price', 'Prix', 'text'),
+    f('weight', 'Poids', 'text'),
+    f('requiresAttunement', 'Harmonisation', 'boolean'),
     f('sourceFile', 'Source', 'text'),
     f('sourcePage', 'Page', 'number'),
+    f('sources', 'Sources', 'list'),
     f('description', 'Description', 'rich'),
   ]),
   category(CAT.npc, 'npc', 'PNJ narratifs', 'user-round', [
@@ -233,6 +260,12 @@ function category(id, slug, name, icon, fields, groups = undefined) {
     if (slug === 'weapon') {
       if (['type', 'weaponCategory', 'rangeType', 'baseWeapon'].includes(field.key)) return { ...field, group: 'identity' };
       if (['damage', 'damageDice', 'damageType', 'price', 'weight', 'properties', 'range'].includes(field.key)) return { ...field, group: 'stats' };
+      if (['rarity', 'bonus', 'requiresAttunement', 'description'].includes(field.key)) return { ...field, group: 'magic' };
+      if (['sources', 'sourceFile', 'sourcePage'].includes(field.key)) return { ...field, group: 'source' };
+    }
+    if (slug === 'armor') {
+      if (['type', 'armorCategory', 'baseArmor'].includes(field.key)) return { ...field, group: 'identity' };
+      if (['ac', 'strength', 'stealth', 'price', 'weight'].includes(field.key)) return { ...field, group: 'stats' };
       if (['rarity', 'bonus', 'requiresAttunement', 'description'].includes(field.key)) return { ...field, group: 'magic' };
       if (['sources', 'sourceFile', 'sourcePage'].includes(field.key)) return { ...field, group: 'source' };
     }
@@ -318,6 +351,14 @@ const CAMPAIGNS = {
     synopsis: 'Aventure urbaine à la Porte de Baldur, centrée sur les tensions politiques, la criminalité et les choix moraux dans une cité dangereuse.',
     hooks: ['Les personnages sont pris dans les jeux de pouvoir de la cité.', 'La ville elle-même devient le donjon.', 'Les factions locales transforment chaque victoire en compromis.'],
     chapters: ['La Porte de Baldur', 'Factions', 'Intrigues urbaines', 'Scènes et lieux clés', 'Conclusion'],
+  },
+  'Par-delà le Carnaval de Sorcelume.pdf': {
+    title: 'Par-delà le Carnaval de Sorcelume',
+    levels: '1-8',
+    setting: 'Féerie / Prismeer',
+    synopsis: 'Une campagne féerique qui commence au Carnaval de Sorcelume avant d’ouvrir un passage vers Prismeer, domaine brisé de Zybilna. Les aventuriers traversent Céans, Çà-et-là et Par-delà pour comprendre l’emprise des guenaudes, rejoindre le Palais du Désir ardent et libérer ce qui a été figé par le Chaudron d’Iggwilv.',
+    hooks: ['Choses perdues : retrouver ce qui a été volé au Carnaval de Sorcelume.', 'La quête de l’occultiste : Madryck Roslof envoie les héros chercher Zybilna.', 'Le passage par la Galerie des illusions révèle la route vers Prismeer.', 'Les choix faits au Carnaval de Sorcelume reviennent dans Céans, Çà-et-là et Par-delà.'],
+    chapters: ['Introduction : Au cœur de la Féerie', 'Chapitre 1 : Le Carnaval de Sorcelume', 'Chapitre 2 : Céans', 'Chapitre 3 : Çà-et-là', 'Chapitre 4 : Par-delà', 'Chapitre 5 : Le palais du Désir ardent', 'Annexe A : Objets magiques', 'Annexe B : Factions', 'Annexe C : Créatures', 'Annexes D-E : Interprétation, répliques et suivi'],
   },
 };
 
@@ -511,6 +552,64 @@ const NAMED_NPC_GROUPS = [
       ['Della Souffle de crapaud', 'Guenaude collectionneuse de recettes', ['DELLA SOUFFLE DE CRAPAUD'], 4],
     ],
   },
+  {
+    test: /Sorcelume|Carnaval/i,
+    campaign: 'Par-delà le Carnaval de Sorcelume',
+    entries: [
+      ['Monsieur Sorcière', 'Propriétaire shadar-kaï du Carnaval de Sorcelume', ['MONSIEUR SORCIÈRE', 'SORCIÈRE ET LUMIÈRE'], 24],
+      ['Monsieur Lumière', 'Propriétaire shadar-kaï du Carnaval de Sorcelume', ['MONSIEUR LUMIÈRE', 'SORCIÈRE ET LUMIÈRE'], 24],
+      ['Zybilna', 'Archifée figée au Palais du Désir ardent', ['ZYBILNA'], 5],
+      ['Iggwilv', 'Reine Sorcière liée à Zybilna et au Chaudron d’Iggwilv', ['IGGWILV', 'D’IGGWILV', "D'IGGWILV"], 5],
+      ['Madryck Roslof', 'Occultiste qui demande de retrouver Zybilna', ['MADRYCK ROSLOF', 'MADRYCK'], 10],
+      ['Bavlorna Paillepourrie', 'Guenaude de l’assemblée du Sablier qui règne sur Céans', ['BAVLORNA PAILLEPOURRIE', 'BAVLORNA'], 58],
+      ['Skabatha Belladone', 'Guenaude de l’assemblée du Sablier qui règne sur Çà-et-là', ['SKABATHA BELLADONE', 'MÈRE-GRAND BELLADONE', 'SKABATHA'], 100],
+      ['Endelyne Tombelune', 'Guenaude de l’assemblée du Sablier qui règne sur Par-delà', ['ENDELYNE TOMBELUNE', 'ENDELYNE'], 134],
+      ['Nikolas', 'Gobelin guichetier du Carnaval de Sorcelume', ['INTERPRÉTER NIKOLAS', 'NIKOLAS'], 32],
+      ['Rubin Sucreboise', 'Halfelin disparu dans la Galerie des illusions', ['RUBIN SUCREBOISE'], 37],
+      ['Piedecire', 'Mime du Carnaval de Sorcelume privé de sa voix', ['PIEDECIRE'], 37],
+      ['Palasha', 'Sirène du lac Hymnargent au Carnaval de Sorcelume', ['PALASHA'], 39],
+      ['Plumevienne', 'Causeur aérien du Carnaval de Sorcelume', ['PLUMEVIENNE'], 39],
+      ['Bohu', 'Gobelours du Coin des forains', ['BOHU'], 33],
+      ['Tohu', 'Frère disparu de Bohu', ['TOHU'], 33],
+      ['Diane Trottinard', 'Responsable du manège du Carnaval de Sorcelume', ['DIANE TROTTINARD'], 41],
+      ['Zéphixo', 'Créateur nain de la Mine des mystères', ['ZÉPHIXO', 'ZEPHIXO'], 43],
+      ['Dirlagraun', 'Bête éclipsante qui veille sur les enfants égarés', ['DIRLAGRAUN'], 44],
+      ['Viro', 'Enfant égaré surveillé par Dirlagraun', ['VIRO'], 44],
+      ['Allowin', 'Enfant égaré surveillé par Dirlagraun', ['ALLOWIN'], 44],
+      ['La Bouilloire', 'Kenku occultiste infiltrée au Carnaval de Sorcelume', ['LA BOUILLOIRE', 'BOUILLOIRE'], 41],
+      ['Biscuit', 'Gardien du Royaume des pixies', ['BISCUIT'], 48],
+      ['Menthaumiel', 'Pixie arbitre du Royaume des pixies', ['MENTHAUMIEL'], 49],
+      ['Coccinétoile', 'Pixie traqueuse du Royaume des pixies', ['COCCINÉTOILE', 'COCCINETOILE'], 49],
+      ['Ellywick Grattechambard', 'Gnome qui aide les héros au Carnaval de Sorcelume', ['ELLYWICK GRATTECHAMBARD', 'ELLYWICK'], 50],
+      ['Thaco', 'Clown grincheux du Carnaval de Sorcelume', ['THACO'], 50],
+      ['Cochontruie', 'Goule larronne de l’assemblée du Sablier', ['COCHONTRUIE'], 50],
+      ['Messire Talavar', 'Dragon féerique prisonnier près de la Tour penchée', ['MESSIRE TALAVAR', 'TALAVAR'], 69],
+      ['Bling-bling', 'Gobeline collectionneuse de clefs liée à la Colline Télémie', ['BLING-BLING'], 71],
+      ['Agdon Longchâle', 'Chef brigand conil de Céans', ['AGDON LONGCHÂLE', 'AGDON'], 69],
+      ['Morgort', 'Ancienne chevalière brutacienne de Céans', ['MORGORT'], 78],
+      ['Gullop XIX', 'Roi brutacien de la Cour aux miasmes', ['GULLOP XIX', 'GULLOP'], 80],
+      ['Griffepince', 'Épouvantail de Céans', ['GRIFFEPINCE'], 78],
+      ['Octavian', 'Elfe flûtiste maudit à Céans', ['OCTAVIAN'], 85],
+      ['Charme', 'Larronne liée à l’assemblée du Sablier', ['CHARME'], 95],
+      ['Will de Féerie', 'Chef du gang des Fugueurs dans Çà-et-là', ['WILL DE FÉERIE', 'WILL'], 108],
+      ['Lamorna', 'Licorne qui protège le Lac Indocile', ['LAMORNA'], 110],
+      ['Élidon', 'Compagnon licorne de Lamorna', ['ÉLIDON', 'ELIDON'], 110],
+      ['Miroite', 'Ombre autonome croisée dans Par-delà', ['MIROITE'], 134],
+      ['Amidor', 'Pissenlit chevalier de Par-delà', ['AMIDOR'], 134],
+      ['Pollenella', 'Abeille géante alliée d’Amidor', ['POLLENELLA'], 135],
+      ['Alagarthas', 'Prince elfe maudit aux Phares féeriques', ['ALAGARTHAS'], 142],
+      ['Obud', 'Brigganock gardien des pierres de vœu', ['OBUD'], 146],
+      ['Molliver', 'Membre de l’Appel des vaillants à la mine brigganock', ['MOLLIVER'], 146],
+      ['Cœur-vaillant', 'Paladin fondateur de l’Appel des vaillants', ['CŒUR-VAILLANT', 'COEUR-VAILLANT'], 216],
+      ['Mercion', 'Membre de l’Appel des vaillants', ['MERCION'], 216],
+      ['Ringlerun', 'Membre de l’Appel des vaillants', ['RINGLERUN'], 216],
+      ['Affreduche', 'Membre de la Ligue de la Haine', ['AFFREDUCHE'], 220],
+      ['Kelek', 'Membre de la Ligue de la Haine', ['KELEK'], 220],
+      ['Skylla', 'Membre de la Ligue de la Haine', ['SKYLLA'], 220],
+      ['Zarak', 'Membre de la Ligue de la Haine', ['ZARAK'], 220],
+      ['Zargash', 'Membre de la Ligue de la Haine', ['ZARGASH'], 220],
+    ],
+  },
 ];
 
 const KNOWN_NAMED_NPC_KEYS = new Set(
@@ -541,11 +640,88 @@ const CORE_AIDEDD_NPC_PROFILE_KEYS = new Set([
   'veteran',
 ]);
 
+const STANDARD_ARMORS = [
+  { name: 'Armure matelassée', armorCategory: 'Légère', ac: '11 + mod. Dex', strength: '', stealth: 'Désavantage', weight: '4 kg', price: '5 po' },
+  { name: 'Armure de cuir', armorCategory: 'Légère', ac: '11 + mod. Dex', strength: '', stealth: '', weight: '5 kg', price: '10 po' },
+  { name: 'Armure de cuir cloutée', armorCategory: 'Légère', ac: '12 + mod. Dex', strength: '', stealth: '', weight: '6,5 kg', price: '45 po' },
+  { name: 'Armure de peau', armorCategory: 'Intermédiaire', ac: '12 + mod. Dex (max +2)', strength: '', stealth: '', weight: '6 kg', price: '10 po' },
+  { name: 'Chemise de mailles', armorCategory: 'Intermédiaire', ac: '13 + mod. Dex (max +2)', strength: '', stealth: '', weight: '10 kg', price: '50 po' },
+  { name: 'Armure d’écailles', armorCategory: 'Intermédiaire', ac: '14 + mod. Dex (max +2)', strength: '', stealth: 'Désavantage', weight: '22,5 kg', price: '50 po' },
+  { name: 'Cuirasse', armorCategory: 'Intermédiaire', ac: '14 + mod. Dex (max +2)', strength: '', stealth: '', weight: '10 kg', price: '400 po' },
+  { name: 'Demi-plate', armorCategory: 'Intermédiaire', ac: '15 + mod. Dex (max +2)', strength: '', stealth: 'Désavantage', weight: '20 kg', price: '750 po' },
+  { name: 'Broigne', armorCategory: 'Lourde', ac: '14', strength: '', stealth: 'Désavantage', weight: '20 kg', price: '30 po' },
+  { name: 'Cotte de mailles', armorCategory: 'Lourde', ac: '16', strength: 'For 13', stealth: 'Désavantage', weight: '27,5 kg', price: '75 po' },
+  { name: 'Clibanion', armorCategory: 'Lourde', ac: '17', strength: 'For 15', stealth: 'Désavantage', weight: '30 kg', price: '200 po' },
+  { name: 'Harnois', armorCategory: 'Lourde', ac: '18', strength: 'For 15', stealth: 'Désavantage', weight: '32,5 kg', price: '1500 po' },
+  { name: 'Bouclier', armorCategory: 'Bouclier', ac: '+2', strength: '', stealth: '', weight: '3 kg', price: '10 po' },
+];
+
+const STANDARD_EQUIPMENT = [
+  ['Abri', 'Équipement d’aventurier', '2 po', '10 kg'],
+  ['Acide (fiole)', 'Équipement d’aventurier', '25 po', '500 g'],
+  ['Bâton', 'Équipement d’aventurier', '2 pc', '2 kg'],
+  ['Bélier portable', 'Équipement d’aventurier', '4 po', '17,5 kg'],
+  ['Billes (sac de 1 000)', 'Équipement d’aventurier', '1 po', '1 kg'],
+  ['Boîte à amadou', 'Équipement d’aventurier', '5 pa', '500 g'],
+  ['Boîte pour cartes ou parchemins', 'Équipement d’aventurier', '1 po', '500 g'],
+  ['Bougie', 'Équipement d’aventurier', '1 pc', ''],
+  ['Bourse', 'Équipement d’aventurier', '5 pa', '500 g'],
+  ['Bouteille en verre', 'Équipement d’aventurier', '2 po', '1 kg'],
+  ['Cadenas', 'Équipement d’aventurier', '10 po', '500 g'],
+  ['Carquois', 'Équipement d’aventurier', '1 po', '500 g'],
+  ['Chaîne (3 m)', 'Équipement d’aventurier', '5 po', '5 kg'],
+  ['Chausse-trappes (sac de 20)', 'Équipement d’aventurier', '1 po', '1 kg'],
+  ['Chevalière', 'Équipement d’aventurier', '5 po', ''],
+  ['Clochette', 'Équipement d’aventurier', '1 po', ''],
+  ['Corde de chanvre (15 m)', 'Équipement d’aventurier', '1 po', '5 kg'],
+  ['Corde de soie (15 m)', 'Équipement d’aventurier', '10 po', '2,5 kg'],
+  ['Couverture', 'Équipement d’aventurier', '5 pa', '1,5 kg'],
+  ['Craie', 'Équipement d’aventurier', '1 pc', ''],
+  ['Eau bénite (flasque)', 'Équipement d’aventurier', '25 po', '500 g'],
+  ['Échelle (3 m)', 'Équipement d’aventurier', '1 pa', '12,5 kg'],
+  ['Encre (fiole)', 'Équipement d’aventurier', '10 po', ''],
+  ['Étui à carreaux', 'Équipement d’aventurier', '1 po', '500 g'],
+  ['Fiole', 'Équipement d’aventurier', '1 po', ''],
+  ['Flasque ou chope', 'Équipement d’aventurier', '2 pc', '500 g'],
+  ['Grappin', 'Équipement d’aventurier', '2 po', '2 kg'],
+  ['Hameçon', 'Équipement d’aventurier', '1 pc', ''],
+  ['Huile (flasque)', 'Équipement d’aventurier', '1 pa', '500 g'],
+  ['Lampe', 'Équipement d’aventurier', '5 pa', '500 g'],
+  ['Lanterne à capote', 'Équipement d’aventurier', '5 po', '1 kg'],
+  ['Lanterne sourde', 'Équipement d’aventurier', '10 po', '1 kg'],
+  ['Livre', 'Équipement d’aventurier', '25 po', '2,5 kg'],
+  ['Longue-vue', 'Équipement d’aventurier', '1000 po', '500 g'],
+  ['Marteau', 'Équipement d’aventurier', '1 po', '1,5 kg'],
+  ['Menottes', 'Équipement d’aventurier', '2 po', '3 kg'],
+  ['Miroir en acier', 'Équipement d’aventurier', '5 po', '250 g'],
+  ['Papier (feuille)', 'Équipement d’aventurier', '2 pa', ''],
+  ['Parchemin (feuille)', 'Équipement d’aventurier', '1 pa', ''],
+  ['Parfum (fiole)', 'Équipement d’aventurier', '5 po', ''],
+  ['Panier', 'Équipement d’aventurier', '4 pa', '1 kg'],
+  ['Pelle', 'Équipement d’aventurier', '2 po', '2,5 kg'],
+  ['Perche (3 m)', 'Équipement d’aventurier', '5 pc', '3,5 kg'],
+  ['Pied-de-biche', 'Équipement d’aventurier', '2 po', '2,5 kg'],
+  ['Piège à mâchoires', 'Équipement d’aventurier', '5 po', '12,5 kg'],
+  ['Piton', 'Équipement d’aventurier', '5 pc', '125 g'],
+  ['Potion de soins', 'Potion', '50 po', '250 g'],
+  ['Rations (1 jour)', 'Équipement d’aventurier', '5 pa', '1 kg'],
+  ['Sac', 'Équipement d’aventurier', '1 pc', '250 g'],
+  ['Sac à dos', 'Équipement d’aventurier', '2 po', '2,5 kg'],
+  ['Sac de couchage', 'Équipement d’aventurier', '1 po', '3,5 kg'],
+  ['Sacoche', 'Équipement d’aventurier', '5 pa', '500 g'],
+  ['Savon', 'Équipement d’aventurier', '2 pc', ''],
+  ['Seau', 'Équipement d’aventurier', '5 pc', '1 kg'],
+  ['Sifflet', 'Équipement d’aventurier', '5 pc', ''],
+  ['Symbole sacré', 'Focaliseur', '5 po', '500 g'],
+  ['Tente pour deux personnes', 'Équipement d’aventurier', '2 po', '10 kg'],
+  ['Torche', 'Équipement d’aventurier', '1 pc', '500 g'],
+].map(([name, type, price, weight]) => ({ name, type, price, weight }));
+
 const SOURCE_TYPES = [
   [/Manuel des monstres/i, 'Compendium'],
   [/AideDD\.org - (Animaux|Monstres|PNJ)/i, 'Compendium'],
   [/Compendium Monstrueux/i, 'Compendium'],
-  [/Reine Dragon|Strahd|Annihilation|Tempêtes|Waterdeep|Baldur/i, 'Campagne'],
+  [/Reine Dragon|Strahd|Annihilation|Tempêtes|Waterdeep|Baldur|Sorcelume|Carnaval|Prismeer/i, 'Campagne'],
   [/Manuel|Guide|Xanathar|Basic Rules|Races et Classes|Côte des Épées/i, 'Règles'],
 ];
 
@@ -606,9 +782,15 @@ async function main() {
     const fullForWeapons = await getFullText({ large: true });
     if (/Basic Rules|Manuel des joueurs/i.test(file)) {
       parseWeaponTables(fullForWeapons, file, title, sourceLicense(file), /Basic Rules/i.test(file) ? 100 : 80);
+      parseArmorTables(fullForWeapons, file, title, sourceLicense(file), /Basic Rules/i.test(file) ? 100 : 80);
+      parseStandardEquipment(fullForWeapons, file, title, sourceLicense(file), /Basic Rules/i.test(file) ? 100 : 80);
     }
     parseMagicWeapons(fullForWeapons, file, title, sourceLicense(file), weaponScanQuality(file));
     parseRemainingWeaponMentions(fullForWeapons, file, title, sourceLicense(file), weaponScanQuality(file));
+    if (shouldParseMagicItemBlocks(file)) {
+      parseMagicArmorsAndItems(fullForWeapons, file, title, sourceLicense(file), itemScanQuality(file));
+    }
+    parseKnownCampaignItems(fullForWeapons, file, title, sourceLicense(file), itemScanQuality(file));
     parseNpcContent(fullForWeapons, file, title, sourceLicense(file), npcScanQuality(file));
     parseCampaignContent(fullForWeapons, file, title, sourceLicense(file), campaignScanQuality(file));
 
@@ -668,6 +850,8 @@ async function main() {
       monsters: entities.filter((e) => e.categoryId === CAT.monster).length,
       spells: entities.filter((e) => e.categoryId === CAT.spell).length,
       weapons: entities.filter((e) => e.categoryId === CAT.weapon).length,
+      armors: entities.filter((e) => e.categoryId === CAT.armor).length,
+      items: entities.filter((e) => e.categoryId === CAT.item).length,
       npcs: entities.filter((e) => e.categoryId === CAT.npc).length,
       campaigns: entities.filter((e) => e.categoryId === CAT.campaign).length,
       adventureSections: entities.filter((e) => e.categoryId === CAT.adventureSection).length,
@@ -687,6 +871,8 @@ async function main() {
   console.log(`  - ${payload.counts.monsters} monstres/blocs de stats`);
   console.log(`  - ${payload.counts.spells} sorts`);
   console.log(`  - ${payload.counts.weapons} armes`);
+  console.log(`  - ${payload.counts.armors} armures/boucliers`);
+  console.log(`  - ${payload.counts.items} objets/trésors`);
   console.log(`  - ${payload.counts.npcs} PNJ`);
   console.log(`  - ${payload.counts.adventureSections} chapitres/scènes`);
   console.log(`  - ${payload.counts.locations} lieux`);
@@ -720,9 +906,22 @@ function weaponScanQuality(file) {
   return 60;
 }
 
+function itemScanQuality(file) {
+  if (/Basic Rules/i.test(file)) return 100;
+  if (/Manuel des joueurs/i.test(file)) return 80;
+  if (/Guide du mai|Guide du ma/i.test(file)) return 95;
+  if (/Guide Complet de Xanathar/i.test(file)) return 88;
+  if (/Strahd|Annihilation|Waterdeep|Baldur|Reine Dragon|Temp/i.test(file)) return 82;
+  return 55;
+}
+
+function shouldParseMagicItemBlocks(file) {
+  return /Guide du mai|Guide du ma|Guide Complet de Xanathar/i.test(file);
+}
+
 function npcScanQuality(file) {
   if (/AideDD\.org - PNJ/i.test(file)) return 100;
-  if (/Strahd|Annihilation|Waterdeep|Baldur|Reine Dragon|Temp/i.test(file)) return 85;
+  if (/Strahd|Annihilation|Waterdeep|Baldur|Reine Dragon|Temp|Sorcelume|Carnaval|Prismeer/i.test(file)) return 85;
   if (/Compendium Monstrueux - Personnages/i.test(file)) return 75;
   return 55;
 }
@@ -732,6 +931,51 @@ function campaignScanQuality(file) {
   return 0;
 }
 
+function linkCampaignText(text, meta, sourceFile) {
+  if (!text || !meta || !/Sorcelume|Carnaval/i.test(sourceFile)) return text;
+  return applyWikiLinks(String(text), campaignLinkTargets(sourceFile, meta));
+}
+
+function campaignLinkTargets(sourceFile, meta) {
+  const groups = NAMED_NPC_GROUPS.filter((group) => group.test.test(sourceFile));
+  const generic = new Set(['Charme']);
+  const targets = [
+    ...campaignKnownLocationRanges(sourceFile).map((entry) => entry.name),
+    ...groups.flatMap((group) => group.entries.map(([name]) => name)),
+  ]
+    .map((target) => cleanText(target))
+    .filter((target) => target.length >= 4 && !generic.has(target));
+
+  return uniqueList(targets).sort((a, b) => b.length - a.length);
+}
+
+function applyWikiLinks(text, targets) {
+  if (!targets.length) return text;
+  return String(text)
+    .split(/(\[\[[^\]]+\]\])/g)
+    .map((part) => {
+      if (part.startsWith('[[')) return part;
+      return linkWikiSegment(part, targets);
+    })
+    .join('');
+}
+
+function linkWikiSegment(segment, targets) {
+  let out = segment;
+  for (const target of targets) {
+    const re = new RegExp(`(^|[^\\p{L}\\p{N}\\]])(${wikiTargetPattern(target)})(?=$|[^\\p{L}\\p{N}\\[])`, 'giu');
+    out = out
+      .split(/(\[\[[^\]]+\]\])/g)
+      .map((part) => (part.startsWith('[[') ? part : part.replace(re, (_match, prefix) => `${prefix}[[${target}]]`)))
+      .join('');
+  }
+  return out;
+}
+
+function wikiTargetPattern(target) {
+  return escapeRegExp(target).replace(/['’]/g, "['’]").replace(/\s+/g, '\\s+');
+}
+
 function addCampaign(file, meta, coverImage) {
   const id = addEntity('campaign', meta.title, {
     coverImage,
@@ -739,9 +983,9 @@ function addCampaign(file, meta, coverImage) {
     levels: meta.levels,
     setting: meta.setting,
     sourceFile: file,
-    synopsis: meta.synopsis,
-    chapters: meta.chapters,
-    hooks: meta.hooks,
+    synopsis: linkCampaignText(meta.synopsis, meta, file),
+    chapters: meta.chapters.map((chapter) => linkCampaignText(chapter, meta, file)),
+    hooks: meta.hooks.map((hook) => linkCampaignText(hook, meta, file)),
   }, `${meta.levels} · ${meta.setting}`, ['campagne', meta.setting.toLowerCase()], meta.title, LICENSE_LOCAL, 100, `campaign:${meta.title}`);
   campaignEntityIds.set(meta.title, id);
 
@@ -874,6 +1118,108 @@ function addWeapon(name, data, summary, tags, sourceName, license, quality = 50,
   return addEntity('weapon', weaponName, incoming, summary, tags, sourceName, license, quality, key);
 }
 
+function addArmor(name, data, summary, tags, sourceName, license, quality = 50, forcedKey = undefined) {
+  const armorName = canonicalArmorName(name);
+  const key = forcedKey ?? `armor:${normalizeName(armorName)}`;
+  const incoming = normalizeArmorData(data);
+  const normalizedTags = uniqueList((tags ?? []).filter(Boolean).map((t) => cleanText(String(t)).toLowerCase()));
+
+  if (entitiesByKey.has(key)) {
+    const existing = entitiesByKey.get(key);
+    const existingQuality = qualityByKey.get(key) ?? 0;
+    if (existingQuality >= quality) {
+      existing.data = mergeItemLikeData(existing.data, incoming);
+      existing.tags = uniqueList([...(existing.tags ?? []), ...normalizedTags]);
+      if (!existing.summary && summary) existing.summary = cleanText(summary);
+      return existing.id;
+    }
+
+    incoming.sources = uniqueList([...(incoming.sources ?? []), ...(existing.data?.sources ?? [])]);
+    for (const [field, value] of Object.entries(existing.data ?? {})) {
+      if (isBlankWeaponValue(incoming[field]) && !isBlankWeaponValue(value)) incoming[field] = value;
+    }
+    tags = uniqueList([...normalizedTags, ...(existing.tags ?? [])]);
+    entitiesByKey.delete(key);
+    qualityByKey.delete(key);
+  }
+
+  return addEntity('armor', armorName, incoming, summary, tags, sourceName, license, quality, key);
+}
+
+function addItem(name, data, summary, tags, sourceName, license, quality = 50, forcedKey = undefined) {
+  const itemName = canonicalItemName(name);
+  let key = forcedKey ?? `item:${normalizeName(itemName)}`;
+  if (!forcedKey) {
+    const standardKey = `item-standard:${normalizeName(itemName)}`;
+    if (entitiesByKey.has(standardKey)) key = standardKey;
+  }
+  const incoming = normalizeItemData(data);
+  const normalizedTags = uniqueList((tags ?? []).filter(Boolean).map((t) => cleanText(String(t)).toLowerCase()));
+
+  if (entitiesByKey.has(key)) {
+    const existing = entitiesByKey.get(key);
+    const existingQuality = qualityByKey.get(key) ?? 0;
+    existing.data = existingQuality >= quality
+      ? mergeItemLikeData(existing.data, incoming)
+      : mergeItemLikeData(incoming, existing.data);
+    existing.tags = uniqueList([...(existing.tags ?? []), ...normalizedTags]);
+    if (!existing.summary && summary) existing.summary = cleanText(summary);
+    if (quality > existingQuality) {
+      existing.name = itemName;
+      existing.sourceName = sourceName;
+      existing.license = license;
+      qualityByKey.set(key, quality);
+    }
+    return existing.id;
+  }
+
+  return addEntity('item', itemName, incoming, summary, normalizedTags, sourceName, license, quality, key);
+}
+
+function normalizeArmorData(data) {
+  const out = { ...data };
+  out.type = out.type || 'Standard';
+  out.armorCategory = cleanText(out.armorCategory ?? '');
+  out.baseArmor = cleanText(out.baseArmor ?? '');
+  out.ac = cleanText(out.ac ?? '');
+  out.strength = cleanText(out.strength ?? '');
+  out.stealth = cleanText(out.stealth ?? '');
+  out.price = cleanText(out.price ?? '');
+  out.weight = cleanText(out.weight ?? '');
+  out.rarity = normalizeRarity(out.rarity ?? '');
+  out.bonus = normalizeWeaponBonus(out.bonus ?? '');
+  out.requiresAttunement = Boolean(out.requiresAttunement);
+  out.description = cleanText(out.description ?? '');
+  out.sources = uniqueList((out.sources ?? []).map(cleanText).filter(Boolean));
+  out.sourceFile = cleanText(out.sourceFile ?? '');
+  out.sourcePage = out.sourcePage ?? null;
+  return out;
+}
+
+function normalizeItemData(data) {
+  const out = { ...data };
+  out.type = cleanText(out.type ?? '');
+  out.rarity = normalizeRarity(out.rarity ?? '');
+  out.price = cleanText(out.price ?? '');
+  out.weight = cleanText(out.weight ?? '');
+  out.requiresAttunement = Boolean(out.requiresAttunement);
+  out.description = cleanText(out.description ?? '');
+  out.sources = uniqueList((out.sources ?? []).map(cleanText).filter(Boolean));
+  out.sourceFile = cleanText(out.sourceFile ?? '');
+  out.sourcePage = out.sourcePage ?? null;
+  return out;
+}
+
+function mergeItemLikeData(primary, secondary) {
+  const out = { ...primary };
+  for (const [field, value] of Object.entries(secondary ?? {})) {
+    if (field === 'sources') continue;
+    if (isBlankWeaponValue(out[field]) && !isBlankWeaponValue(value)) out[field] = value;
+  }
+  out.sources = uniqueList([...(primary?.sources ?? []), ...(secondary?.sources ?? [])]);
+  return out;
+}
+
 function normalizeWeaponData(data) {
   const out = { ...data };
   out.type = out.type || 'Standard';
@@ -963,7 +1309,7 @@ function addCampaignChapterSections(pages, sourceFile, meta, sourceName, license
     const range = ranges[index] ?? fallbackCampaignChapterRange(pages, meta, index);
     const pageStart = clampPage(range.pageStart, pages.length);
     const pageEnd = clampPage(Math.max(range.pageEnd ?? pageStart, pageStart), pages.length);
-    const content = campaignPagesContent(pages, pageStart, pageEnd);
+    const content = linkCampaignText(campaignPagesContent(pages, pageStart, pageEnd), meta, sourceFile);
     if (!content || content.length < 120) continue;
 
     addEntity('adventureSection', `${meta.title} — ${chapter}`, {
@@ -981,7 +1327,7 @@ function addCampaignPageArchiveSections(pages, sourceFile, meta, sourceName, lic
   const chunkSize = 3;
   for (let start = 1; start <= pages.length; start += chunkSize) {
     const end = Math.min(pages.length, start + chunkSize - 1);
-    const content = campaignPagesContent(pages, start, end);
+    const content = linkCampaignText(campaignPagesContent(pages, start, end), meta, sourceFile);
     if (!content || content.length < 180 || isMostlyCampaignFrontMatter(content)) continue;
 
     addEntity('adventureSection', `${meta.title} — Pages ${start}-${end}`, {
@@ -1055,12 +1401,70 @@ function campaignKnownLocationRanges(sourceFile) {
       { name: 'Temple d’Ambre', pageStart: 184, pageEnd: 198 },
     ];
   }
+  if (/Annihilation/i.test(sourceFile)) {
+    return [
+      { name: 'Port Nyanzaru', pageStart: 15, pageEnd: 36 },
+      { name: 'Fort Beluarian', pageStart: 55, pageEnd: 57 },
+      { name: 'Omu', pageStart: 95, pageEnd: 111 },
+      { name: 'Fanum du Serpent nocturne', pageStart: 112, pageEnd: 128 },
+      { name: 'Tombeau des neuf dieux', pageStart: 130, pageEnd: 177 },
+    ];
+  }
+  if (/Donjon du Mage/i.test(sourceFile)) {
+    return [
+      { name: 'Undermountain', pageStart: 5, pageEnd: 13 },
+      { name: 'Skullport', pageStart: 304, pageEnd: 322 },
+    ];
+  }
+  if (/Sorcelume|Carnaval/i.test(sourceFile)) {
+    return [
+      { name: 'Prismeer', pageStart: 58, pageEnd: 62 },
+      { name: 'Carnaval de Sorcelume', pageStart: 24, pageEnd: 56 },
+      { name: 'Guichet', pageStart: 32, pageEnd: 33 },
+      { name: 'Calliope', pageStart: 33, pageEnd: 33 },
+      { name: 'Coin des forains', pageStart: 33, pageEnd: 34 },
+      { name: 'Course d’escargots', pageStart: 35, pageEnd: 36 },
+      { name: 'Galerie des illusions', pageStart: 37, pageEnd: 38 },
+      { name: 'Gondoles aux cygnes', pageStart: 38, pageEnd: 39 },
+      { name: 'Grand chapiteau', pageStart: 39, pageEnd: 40 },
+      { name: 'Lac Hymnargent', pageStart: 40, pageEnd: 41 },
+      { name: 'Manège', pageStart: 41, pageEnd: 42 },
+      { name: 'Mine des mystères', pageStart: 43, pageEnd: 44 },
+      { name: 'Petits étals', pageStart: 44, pageEnd: 48 },
+      { name: 'Royaume des pixies', pageStart: 48, pageEnd: 49 },
+      { name: 'Théière à bulles', pageStart: 49, pageEnd: 49 },
+      { name: 'Verger ripailleur', pageStart: 49, pageEnd: 50 },
+      { name: 'Céans', pageStart: 58, pageEnd: 98 },
+      { name: 'Tour penchée', pageStart: 69, pageEnd: 70 },
+      { name: 'Colline Télémie', pageStart: 71, pageEnd: 72 },
+      { name: 'Péage des brigands', pageStart: 72, pageEnd: 75 },
+      { name: 'Déchéance', pageStart: 75, pageEnd: 88 },
+      { name: 'Cour aux miasmes', pageStart: 75, pageEnd: 87 },
+      { name: 'Chaumière de Bavlorna', pageStart: 88, pageEnd: 98 },
+      { name: 'Çà-et-là', pageStart: 100, pageEnd: 131 },
+      { name: 'Grotte de Nib', pageStart: 106, pageEnd: 108 },
+      { name: 'Lac Indocile', pageStart: 110, pageEnd: 112 },
+      { name: 'Longuesouche', pageStart: 113, pageEnd: 130 },
+      { name: 'Par-delà', pageStart: 134, pageEnd: 169 },
+      { name: 'Cromlech de Lockbury', pageStart: 142, pageEnd: 144 },
+      { name: 'Phares féeriques', pageStart: 144, pageEnd: 146 },
+      { name: 'La Mine Brigganock', pageStart: 146, pageEnd: 150 },
+      { name: 'Cornemère', pageStart: 150, pageEnd: 169 },
+      { name: 'Palais du Désir ardent', pageStart: 172, pageEnd: 208 },
+      { name: 'Chambre de Zybilna', pageStart: 201, pageEnd: 202 },
+      { name: 'Chambre forte', pageStart: 204, pageEnd: 205 },
+    ];
+  }
   return [];
 }
 
 function addCampaignLocation(meta, sourceFile, rawName, region, sourcePage, description, sourceName, license, quality, options = {}) {
   const name = cleanCampaignLocationTitle(rawName);
   if (!options.force && !isLikelyCampaignLocationTitle(name)) return;
+  const linkedDescription = linkCampaignText(cleanText(description), meta, sourceFile);
+  const key = /Sorcelume|Carnaval/i.test(sourceFile)
+    ? `location:${meta.title}:${normalizeName(name)}`
+    : `location:${meta.title}:${normalizeName(name)}:${sourcePage ?? 'x'}`;
 
   addEntity('location', name, {
     campaign: meta.title,
@@ -1068,8 +1472,8 @@ function addCampaignLocation(meta, sourceFile, rawName, region, sourcePage, desc
     mapImage: '',
     sourceFile,
     sourcePage,
-    description: cleanText(description),
-  }, `${meta.title} · ${region || 'Lieu'} · p. ${sourcePage}`, ['lieu', 'campagne', meta.title, region, sourceName], sourceName, license, quality, `location:${meta.title}:${normalizeName(name)}:${sourcePage ?? 'x'}`);
+    description: linkedDescription,
+  }, `${meta.title} · ${region || 'Lieu'} · p. ${sourcePage}`, ['lieu', 'campagne', meta.title, region, sourceName], sourceName, license, quality, key);
 }
 
 function buildCampaignChapterRanges(text, pages, toc, sourceFile, meta) {
@@ -1139,6 +1543,19 @@ function campaignManualChapterRange(sourceFile, chapter, totalPages) {
     if (/quartiers-et-ambiance/.test(key)) return clamp(32, 45);
     if (/complications-urbaines/.test(key)) return clamp(46, 58);
     if (/pnj-et-evenements/.test(key)) return clamp(59, totalPages);
+  }
+
+  if (/Sorcelume|Carnaval/i.test(sourceFile)) {
+    if (/introduction-au-c-ur-de-la-feerie/.test(key)) return clamp(5, 22);
+    if (/chapitre-1-le-carnaval-de-sorcelume/.test(key)) return clamp(24, 57);
+    if (/chapitre-2-ceans/.test(key)) return clamp(58, 99);
+    if (/chapitre-3-ca-et-la/.test(key)) return clamp(100, 133);
+    if (/chapitre-4-par-dela/.test(key)) return clamp(134, 171);
+    if (/chapitre-5-le-palais-du-desir-ardent/.test(key)) return clamp(172, 208);
+    if (/annexe-a-objets-magiques/.test(key)) return clamp(209, 215);
+    if (/annexe-b-factions/.test(key)) return clamp(216, 229);
+    if (/annexe-c-creatures/.test(key)) return clamp(230, 241);
+    if (/annexes-d-e-interpretation-repliques-et-suivi/.test(key)) return clamp(242, totalPages);
   }
 
   return null;
@@ -1353,15 +1770,19 @@ function isLikelyCampaignLocationTitle(rawTitle) {
 
 function campaignRejectedLocationTitle(title) {
   if (/rencontre/i.test(title)) return true;
+  if (/^(?:ch\.|chapitre)\s*\d+/i.test(title)) return true;
+  if (/^\d+\s*-\s*\d+/.test(title)) return true;
   const key = normalizeName(stripCampaignHeadingPrefix(title));
   if (!key) return true;
-  if (/rencontre/.test(key.replace(/-/g, ''))) return true;
+  const compactKey = key.replace(/-/g, '');
+  if (/rencontre/.test(compactKey)) return true;
+  if (/chap(?:i|f|j|l|t)?tre/.test(compactKey) || /^ch\d/.test(compactKey)) return true;
   if (/^(credits?|contents?|sommaire|table-des-matieres|dramatis-personae|introduction|contexte|presentation|secrets?|annexes?|appendix|index|open-game-license)$/.test(key)) return true;
   if (/^(tresor|recompenses?|developpements?|caracteristiques-generales|personnages-importants|pnj|npcs?|monstres?|objets?-magiques?|aides?-de-jeu|progression|guide-de-prononciation|credits?)$/.test(key)) return true;
   if (/rencontres?/.test(key)) return true;
   if (/^(rencontres?-aleatoires?|rumeurs?|quete?s?-secondaires?|factions?|actions?|reactions?|evenements?-speciaux?|questions?-en-suspens)$/.test(key)) return true;
   if (/^(la-creation-des-personnages|la-progression-des-personnages|running-the-adventure|story-overview|character-creation|character-advancement|suggested-character-levels)$/.test(key)) return true;
-  if (/(creature|personnages?|attaque|touche|degats?|jet-de|reussir|echec|sorts?|emplacements?|dd|pv|ca|challenge|facteur-de-puissance)/.test(key)) return true;
+  if (/(acheter|equipement|creature|personnages?|attaque|touche|degats?|jet-de|reussir|echec|sorts?|emplacements?|dd|pv|ca|challenge|facteur-de-puissance)/.test(key)) return true;
   if (/\b(?:po|pa|pc|pp|mo|metres?|m)\b/.test(key) && /\d/.test(key)) return true;
   if (/(?:^|-)d?\d+d\d+(?:-|$)/i.test(key) || /(?:^|-)ld\d+(?:-|$)/i.test(key)) return true;
   return false;
@@ -1374,9 +1795,10 @@ function looksLikeCampaignPlaceTitle(title) {
   if (cleaned.split(/\s+/).length > 10) return false;
   const key = normalizeName(cleaned);
   if (/(?:^|-)d?\d+d\d+(?:-|$)/i.test(key) || /(?:^|-)ld\d+(?:-|$)/i.test(key)) return false;
-  if (/(creature|personnages?|attaque|touche|degats?|jet-de|reussir|echec|sorts?|emplacements?|sauvegarde|cible|utilises?|tour|action|minute|minutes|round|rounds)/.test(key)) return false;
+  if (/(acheter|equipement|creature|personnages?|attaque|touche|degats?|jet-de|reussir|echec|sorts?|emplacements?|sauvegarde|cible|utilises?|tour|action|minute|minutes|round|rounds)/.test(key)) return false;
   if (/\b(?:po|pa|pc|pp|mo|metres?|m)\b/.test(key) && /\d/.test(key)) return false;
-  if (/^(?:dans|un|une|des|les|la|le)-/.test(key) && cleaned.split(/\s+/).length > 5) return false;
+  if (cleaned.split(/\s+/).length > 5 && /(?:^|-)(?:a|est|sont|pour|sous|concue|bati|batit)(?:-|$)/.test(key)) return false;
+  if (/^(?:apres|dans|quatre|un|une|des|les|la|le)-/.test(key) && cleaned.split(/\s+/).length > 5) return false;
   if (/^(?:un|une|des|les?|la|le)-/.test(key) && !hasCampaignPlaceKeyword(cleaned)) return false;
   return true;
 }
@@ -1391,17 +1813,24 @@ function isShortCampaignPlaceTitle(title) {
 
 function hasCampaignPlaceKeyword(title) {
   const key = normalizeName(title);
+  const parts = key.split('-').filter(Boolean);
+  const matchesKeyword = (keyword) => parts.some((part) => {
+    if (part === keyword || part === `${keyword}s` || part === `l${keyword}` || part === `d${keyword}`) return true;
+    if (part.endsWith(keyword) && part.length <= keyword.length + 1) return true;
+    if (part.startsWith(keyword) && part.length <= keyword.length + 2) return true;
+    return false;
+  });
   const keywords = [
     'abbaye', 'allee', 'ancrage', 'antre', 'auberge', 'baie', 'bains', 'bar', 'bassin', 'bois', 'bourg', 'bureau', 'cale', 'camp', 'campement',
     'carnaval', 'caverne', 'cavernes', 'cellule', 'chapelle', 'chambre', 'chambres', 'champ', 'chateau', 'cimetiere', 'cite', 'colisee', 'commerce', 'cour', 'crique',
     'crypte', 'donjon', 'docks', 'ecurie', 'eglise', 'ecloserie', 'enclos', 'embranchement', 'entree', 'entrepot', 'entrepots', 'epave', 'falaises', 'fanum', 'fontaine', 'fort',
     'foyer', 'foret', 'forge', 'fosse', 'gate', 'grange', 'grenier', 'grille', 'grotte', 'halls', 'ile', 'inn', 'jardin', 'lac', 'labyrinthe', 'loge', 'maison',
-    'manoir', 'marche', 'masure', 'mausolee', 'mine', 'monastere', 'moulin', 'niveau', 'palais', 'parcours', 'phare', 'planque', 'pont',
+    'manoir', 'marche', 'masure', 'mausolee', 'mine', 'monastere', 'moulin', 'niveau', 'palais', 'parcours', 'phare', 'planque', 'pont', 'portail',
     'port', 'porte', 'prison', 'quartier', 'quartiers', 'refuge', 'repaire', 'route', 'ruelle', 'salle', 'salles',
     'sanctuaire', 'shrine', 'souk', 'strate', 'statue', 'taverne', 'tavern', 'temple', 'tenure', 'terres', 'theatre',
     'tombeau', 'tour', 'tours', 'tribunal', 'trone', 'vallee', 'villa', 'village',
   ];
-  return keywords.some((keyword) => key.includes(keyword));
+  return keywords.some((keyword) => matchesKeyword(keyword));
 }
 
 function cleanCampaignLocationTitle(text) {
@@ -1458,6 +1887,349 @@ function clampPage(page, totalPages) {
   const n = Number(page);
   if (!Number.isFinite(n)) return 1;
   return Math.min(Math.max(1, Math.trunc(n)), Math.max(1, totalPages));
+}
+
+function parseArmorTables(fullText, sourceFile, sourceName, license, quality) {
+  const text = normalizePdfText(fullText);
+  const armorBlockIndex = literalIndexOfAny(text, ['Armure matelassée', 'ARMURE MATELASSÉE'], 10000);
+  const armorFallbackIndex = literalIndexOfAny(text, ['Armure matelassée', 'ARMURE MATELASSÉE']);
+  const armorIndex = armorBlockIndex >= 0 ? armorBlockIndex : armorFallbackIndex >= 0 ? armorFallbackIndex : 0;
+  const page = pageForIndex(text, armorIndex);
+  const descriptions = extractArmorDescriptions(text);
+
+  for (const armor of STANDARD_ARMORS) {
+    const description = descriptions.get(normalizeName(armor.name)) ?? armor.description ?? '';
+    const source = formatItemSource(sourceName, sourceFile, page);
+    addArmor(armor.name, {
+      type: 'Standard',
+      armorCategory: armor.armorCategory,
+      baseArmor: '',
+      ac: armor.ac,
+      strength: armor.strength,
+      stealth: armor.stealth,
+      price: armor.price,
+      weight: armor.weight,
+      rarity: '',
+      bonus: '',
+      requiresAttunement: false,
+      description,
+      sources: [source],
+      sourceFile,
+      sourcePage: page,
+    }, [armor.armorCategory, armor.ac, armor.price].filter(Boolean).join(' · '), ['armure', 'standard', armor.armorCategory, sourceName], sourceName, license, quality);
+  }
+}
+
+function parseStandardEquipment(fullText, sourceFile, sourceName, license, quality) {
+  const text = normalizePdfText(fullText);
+  const equipmentBlockIndex = literalIndexOfAny(text, ["ÉQUIPEMENT D'AVENTURIER", 'ÉQUIPEMENT D’AVENTURIER'], 10000);
+  const equipmentItemIndex = literalIndexOfAny(text, ['Sac à dos', 'Potion de soins'], 10000);
+  const equipmentFallbackIndex = literalIndexOfAny(text, ["Équipement d'aventurier", 'Équipement d’aventurier']);
+  const start = equipmentBlockIndex >= 0 ? equipmentBlockIndex : equipmentItemIndex >= 0 ? equipmentItemIndex : equipmentFallbackIndex >= 0 ? equipmentFallbackIndex : 0;
+  const page = pageForIndex(text, start);
+  const source = formatItemSource(sourceName, sourceFile, page);
+
+  for (const item of STANDARD_EQUIPMENT) {
+    addItem(item.name, {
+      type: item.type,
+      rarity: '',
+      price: item.price,
+      weight: item.weight,
+      requiresAttunement: false,
+      description: item.description ?? '',
+      sources: [source],
+      sourceFile,
+      sourcePage: page,
+    }, [item.type, item.price, item.weight].filter(Boolean).join(' · '), ['objet', 'équipement', item.type, sourceName], sourceName, license, quality, `item-standard:${normalizeName(item.name)}`);
+  }
+}
+
+function parseMagicArmorsAndItems(fullText, sourceFile, sourceName, license, quality) {
+  if (quality <= 0) return;
+  const full = normalizePdfText(fullText);
+  const scan = magicItemBlockScanText(full, sourceFile);
+  const text = scan.text;
+  if (!text) return;
+  const startRe = /(?:^|\n)([^\n]{2,100})\n(Arme|Armure|Objet merveilleux|Potion|Anneau|Baguette|Bâton|Sceptre|Parchemin|Bouclier|Bottes|Cape|Casque|Gemme|Livre|Grimoire|Pierre|Sac|Huile)\s*(?:\(([^)\n]+)\))?\s*,?\s*([^\n]*)/gi;
+  const starts = [];
+  let match;
+  while ((match = startRe.exec(text))) {
+    const rawName = cleanMagicItemName(match[1]);
+    const itemType = cleanText(match[2]);
+    if (/^Arme$/i.test(itemType)) continue;
+    if (!isLikelyMagicItemName(rawName)) continue;
+    starts.push({
+      index: match.index + (match[0].startsWith('\n') ? 1 : 0),
+      contentStart: startRe.lastIndex,
+      rawName,
+      itemType,
+      detail: cleanText(match[3] ?? ''),
+      meta: cleanText(match[4] ?? ''),
+    });
+  }
+  starts.push(...findInlineMagicItemStarts(text));
+  starts.sort((a, b) => a.index - b.index);
+
+  for (let i = starts.length - 1; i > 0; i -= 1) {
+    if (starts[i].index - starts[i - 1].index < 8 && normalizeName(starts[i].rawName) === normalizeName(starts[i - 1].rawName)) {
+      starts.splice(i, 1);
+    }
+  }
+  for (let i = 0; i < starts.length; i += 1) {
+    const start = starts[i];
+    const next = starts[i + 1]?.index ?? text.length;
+    const hardEnd = Math.min(next, start.contentStart + 3600);
+    const end = findMagicWeaponDescriptionEnd(text, start.contentStart, hardEnd);
+    const description = cleanMagicItemDescription(text.slice(start.contentStart, end));
+    if (!description && !/Guide Complet de Xanathar|Guide du mai|Guide du ma/i.test(sourceFile)) continue;
+
+    const sourcePage = pageForIndex(full, scan.offset + start.index);
+    const metaText = normalizeMagicText(`${start.detail}\n${start.meta}\n${description}`);
+    const rarity = parseWeaponRarity(metaText);
+    const requiresAttunement = /harmonisation|harmonis|lien|nécessite un|necessite un/i.test(metaText);
+    const source = formatItemSource(sourceName, sourceFile, sourcePage);
+
+    if (isMagicArmorType(start.itemType)) {
+      const name = canonicalArmorName(start.rawName);
+      const baseArmor = normalizeBaseArmor(start.detail || inferBaseArmorFromName(name));
+      const base = findBaseArmorData(baseArmor);
+      const bonus = parseWeaponBonus(`${name}\n${start.meta}\n${description}`);
+      addArmor(name, {
+        type: 'Magique',
+        armorCategory: inferArmorCategory(baseArmor, name),
+        baseArmor,
+        ac: base?.ac ?? '',
+        strength: base?.strength ?? '',
+        stealth: base?.stealth ?? '',
+        price: '',
+        weight: base?.weight ?? '',
+        rarity,
+        bonus,
+        requiresAttunement,
+        description,
+        sources: [source],
+        sourceFile,
+        sourcePage,
+      }, [baseArmor || 'Armure', rarity || 'magique', bonus].filter(Boolean).join(' · '), ['armure', 'magique', rarity, bonus, baseArmor, sourceName], sourceName, license, quality);
+    } else {
+      const name = canonicalItemName(start.rawName);
+      const type = normalizeMagicItemType(start.itemType);
+      addItem(name, {
+        type,
+        rarity,
+        price: '',
+        weight: '',
+        requiresAttunement,
+        description,
+        sources: [source],
+        sourceFile,
+        sourcePage,
+      }, [type, rarity || 'magique'].filter(Boolean).join(' · '), ['objet', 'magique', type, rarity, sourceName], sourceName, license, quality);
+    }
+  }
+}
+
+function magicItemBlockScanText(text, sourceFile) {
+  if (/Guide Complet de Xanathar/i.test(sourceFile)) {
+    const start = literalIndexOfAny(text, ['AMULETTE MÉCANIQUE', 'AMULETTE MECANIQUE']);
+    const end = firstPositiveIndex([
+      literalIndexOfAny(text, ["LES TABLES D'OBJETS MAGIQUES", 'LES TABLES D’OBJETS MAGIQUES'], Math.max(0, start)),
+      literalIndexOfAny(text, ['OBJETS MINEURS COURANTS'], Math.max(0, start)),
+    ], text.length);
+    return start >= 0 ? { text: text.slice(start, end), offset: start } : { text: '', offset: 0 };
+  }
+
+  if (/Guide du mai|Guide du ma/i.test(sourceFile)) {
+    const start = firstPositiveIndex([
+      literalIndexOfAny(text, ['OBJETS MAGIQUES DE A']),
+      literalIndexOfAny(text, ['AILES DE VOL']),
+      literalIndexOfAny(text, ['ARMURE +1']),
+    ], -1);
+    const end = firstPositiveIndex([
+      literalIndexOfAny(text, ['OBJETS INTELLIGENTS'], Math.max(0, start)),
+      literalIndexOfAny(text, ['ARTÉFACTS', 'ARTEFACTS'], Math.max(0, start)),
+    ], text.length);
+    return start >= 0 ? { text: text.slice(start, end), offset: start } : { text: '', offset: 0 };
+  }
+
+  return { text, offset: 0 };
+}
+
+function literalIndexOfAny(text, needles, fromIndex = 0) {
+  return firstPositiveIndex(needles.map((needle) => text.indexOf(needle, fromIndex)), -1);
+}
+
+function findInlineMagicItemStarts(text) {
+  const types = 'Arme|Armure|Objet merveilleux|Potion|Anneau|Baguette|Bâton|Sceptre|Parchemin|Bouclier|Bottes|Cape|Casque|Gemme|Livre|Grimoire|Pierre|Sac|Huile';
+  const re = new RegExp(`([A-ZÀ-ÖØ-ÞŒÆ0-9][A-ZÀ-ÖØ-ÞŒÆ0-9'’+\\- ]{2,92})\\s+(${types})\\s*(?:\\(([^)]{1,120})\\))?\\s*,?\\s*([^A-Z\\n]{0,180})`, 'g');
+  const starts = [];
+  let match;
+  while ((match = re.exec(text))) {
+    const itemType = cleanText(match[2]);
+    if (/^Arme$/i.test(itemType)) continue;
+
+    let rawName = cleanMagicItemName(match[1]);
+    const detail = cleanText(match[3] ?? '');
+    if (/^\d+\s+OU\s+\+\d/i.test(rawName) && /^Armure$/i.test(itemType)) {
+      rawName = /bouclier/i.test(detail) ? 'Bouclier +1/+2/+3' : 'Armure +1/+2/+3';
+    }
+    if (!isLikelyMagicItemName(rawName)) continue;
+    if (isLikelyInlineCaption(rawName)) continue;
+
+    starts.push({
+      index: match.index,
+      contentStart: re.lastIndex,
+      rawName,
+      itemType,
+      detail,
+      meta: cleanText(match[4] ?? ''),
+    });
+  }
+  return starts;
+}
+
+function parseMagicItemTableReferences(fullText, sourceFile, sourceName, license, quality) {
+  if (!/Guide Complet de Xanathar/i.test(sourceFile)) return;
+  const text = normalizePdfText(fullText);
+  const rowRe = /([A-ZÀ-ÖØ-Þa-zà-öø-ÿ0-9][A-ZÀ-ÖØ-Þa-zà-öø-ÿ0-9'’+\- ]{2,80})\s+(Objet merveilleux|Armure|Anneau|Baguette|Bâton|Potion|Parchemin|Sceptre|Cape|Bottes|Gemme|Livre|Grimoire|Pierre|Sac)\s+(Oui(?:\s*\([^)]+\))?|Non)/g;
+  let match;
+  while ((match = rowRe.exec(text))) {
+    const name = cleanMagicItemName(match[1]);
+    const type = normalizeMagicItemType(match[2]);
+    if (!isLikelyMagicItemName(name) || /Objet Type Harmonisation/i.test(name)) continue;
+    const requiresAttunement = /^Oui/i.test(match[3]);
+    const sourcePage = pageForIndex(text, match.index);
+    const pageSource = formatItemSource(sourceName, sourceFile, sourcePage);
+
+    if (/^Armure$/i.test(type)) {
+      const armorName = canonicalArmorName(name);
+      const baseArmor = normalizeBaseArmor(inferBaseArmorFromName(armorName));
+      const base = findBaseArmorData(baseArmor);
+      addArmor(armorName, {
+        type: 'Magique',
+        armorCategory: inferArmorCategory(baseArmor, armorName),
+        baseArmor,
+        ac: base?.ac ?? '',
+        strength: base?.strength ?? '',
+        stealth: base?.stealth ?? '',
+        price: '',
+        weight: base?.weight ?? '',
+        rarity: '',
+        bonus: parseWeaponBonus(armorName),
+        requiresAttunement,
+        description: `Référence issue des tables d'objets magiques de ${sourceName}.`,
+        sources: [pageSource],
+        sourceFile,
+        sourcePage,
+      }, `Armure magique · table ${sourceName}`, ['armure', 'magique', 'table d’objets magiques', sourceName], sourceName, license, Math.max(45, quality - 20));
+    } else {
+      addItem(name, {
+        type,
+        rarity: '',
+        price: '',
+        weight: '',
+        requiresAttunement,
+        description: `Référence issue des tables d'objets magiques de ${sourceName}.`,
+        sources: [pageSource],
+        sourceFile,
+        sourcePage,
+      }, `${type} · table ${sourceName}`, ['objet', 'magique', 'table d’objets magiques', type, sourceName], sourceName, license, Math.max(45, quality - 20));
+    }
+  }
+}
+
+function parseKnownCampaignItems(fullText, sourceFile, sourceName, license, quality) {
+  const text = normalizePdfText(fullText);
+  const entries = [];
+
+  if (/Strahd/i.test(sourceFile)) {
+    entries.push(
+      { name: 'Livre de Strahd', type: 'Objet merveilleux', rarity: 'Unique', needles: ['LIVRE DE STRAHD'], maxLength: 1500 },
+      { name: 'Icône de Ravenloft', type: 'Objet merveilleux', rarity: 'Légendaire', needles: ['ICÔNE DE RAVENLOFT'], maxLength: 1500 },
+      { name: 'Symbole sacré de Ravenkind', type: 'Objet merveilleux', rarity: 'Légendaire', needles: ['SYMBOLE SACRÉ DE RAVENKIND', 'SYMBOLE SACRE DE RAVENKIND'], maxLength: 1600 },
+    );
+  }
+
+  if (/Annihilation/i.test(sourceFile)) {
+    entries.push(
+      { name: 'Amulette du crâne noir', type: 'Objet merveilleux', rarity: 'Très rare', needles: ['AMULETTE DU CRÂNE NOIR', 'AMULETTE DU CRANE NOIR'], maxLength: 1300 },
+      { name: 'Masque de la bête', type: 'Objet merveilleux', rarity: 'Rare', needles: ['MASQUE DE LA BÊTE', 'MASQUE DE LA BETE'], maxLength: 1200 },
+    );
+  }
+
+  if (/Waterdeep - Le Vol/i.test(sourceFile)) {
+    entries.push(
+      { name: 'Pierre de Golorr', type: 'Objet merveilleux', rarity: 'Artefact', needles: ['PIERRE DE GOLORR'], maxLength: 2200 },
+      { name: 'Bâton-dragon d’Ahghairon', type: 'Bâton', rarity: 'Légendaire', needles: ["BÂTON-DRAGON D'AHGHAIRON", 'BÂTON-DRAGON D’AHGHAIRON'], maxLength: 1800 },
+      { name: 'Clé de la chambre forte des dragons', type: 'Objet merveilleux', rarity: 'Unique', needles: ['CLÉS DE LA CHAMBRE FORTE', 'LES CLÉS DE LA CHAMBRE FORTE'], maxLength: 1400 },
+    );
+  }
+
+  if (/Waterdeep - Le Donjon du Mage/i.test(sourceFile)) {
+    entries.push(
+      { name: 'Bouclier de la rune Uven', type: 'Armure', rarity: 'Rare', needles: ['BOUCLIER DE LA RUNE UVEN'], maxLength: 1300, armor: true },
+      { name: 'Gouvernail du charognard', type: 'Objet merveilleux', rarity: 'Très rare', needles: ['GOUVERNAIL DU CHAROGNARD'], maxLength: 1300 },
+    );
+  }
+
+  if (/Tonnerre/i.test(sourceFile)) {
+    entries.push(
+      { name: 'Conque de téléportation', type: 'Objet merveilleux', rarity: 'Rare', needles: ['CONQUE DE TÉLÉPORTATION', 'CONQUE DE TELEPORTATION'], maxLength: 1200 },
+    );
+  }
+
+  if (/Reine Dragon/i.test(sourceFile)) {
+    entries.push(
+      { name: 'Masque de dragon noir', type: 'Objet merveilleux', rarity: 'Légendaire', needles: ['MASQUE DE DRAGON NOIR'], maxLength: 1600 },
+    );
+  }
+
+  for (const entry of entries) {
+    const index = findFirstNeedleIndex(text, entry.needles);
+    if (index < 0) continue;
+    const sourcePage = pageForIndex(text, index);
+    const description = cleanMagicItemDescription(text.slice(index, Math.min(text.length, index + (entry.maxLength ?? 1200))));
+    const source = formatItemSource(sourceName, sourceFile, sourcePage);
+
+    if (entry.armor) {
+      const baseArmor = normalizeBaseArmor(inferBaseArmorFromName(entry.name));
+      const base = findBaseArmorData(baseArmor);
+      addArmor(entry.name, {
+        type: 'Magique',
+        armorCategory: inferArmorCategory(baseArmor, entry.name),
+        baseArmor,
+        ac: base?.ac ?? '',
+        strength: base?.strength ?? '',
+        stealth: base?.stealth ?? '',
+        price: '',
+        weight: base?.weight ?? '',
+        rarity: entry.rarity,
+        bonus: parseWeaponBonus(entry.name),
+        requiresAttunement: /harmonisation/i.test(description),
+        description,
+        sources: [source],
+        sourceFile,
+        sourcePage,
+      }, [entry.type, entry.rarity].filter(Boolean).join(' · '), ['armure', 'magique', 'campagne', entry.rarity, sourceName], sourceName, license, quality);
+    } else {
+      addItem(entry.name, {
+        type: entry.type,
+        rarity: entry.rarity,
+        price: '',
+        weight: '',
+        requiresAttunement: /harmonisation/i.test(description),
+        description,
+        sources: [source],
+        sourceFile,
+        sourcePage,
+      }, [entry.type, entry.rarity].filter(Boolean).join(' · '), ['objet', 'magique', 'campagne', entry.type, entry.rarity, sourceName], sourceName, license, quality);
+    }
+  }
+}
+
+function findFirstNeedleIndex(text, needles) {
+  const indexes = (needles ?? []).map((needle) => normalizedIndexOf(text, needle)).filter((index) => index >= 0);
+  return indexes.length ? Math.min(...indexes) : -1;
 }
 
 function parseGenericNpcProfiles(text, sourceFile, sourceName, license, quality, options = {}) {
@@ -1517,7 +2289,7 @@ function parseNamedNpcSeeds(text, sourceFile, sourceName, license, quality) {
       const index = findNamedNpcIndex(text, entry);
       if (index < 0) continue;
       const sourcePage = pageForIndex(text, index);
-      const description = extractNamedNpcDescription(text, index, entry);
+      const description = linkCampaignText(extractNamedNpcDescription(text, index, entry), CAMPAIGNS[sourceFile], sourceFile);
       addNpc(entry.name, {
         campaign: entry.campaign,
         role: entry.role,
@@ -2371,6 +3143,228 @@ function formatWeaponSource(sourceName, sourceFile, sourcePage) {
   return `${sourceName}${sourcePage ? ` p. ${sourcePage}` : ''} (${sourceFile})`;
 }
 
+function formatItemSource(sourceName, sourceFile, sourcePage) {
+  if (!sourceName && !sourceFile) return '';
+  return `${sourceName || sourceFile}${sourcePage ? ` p. ${sourcePage}` : ''}${sourceFile ? ` (${sourceFile})` : ''}`;
+}
+
+function canonicalArmorName(name) {
+  let value = displayTitle(cleanMagicItemName(name)
+    .replace(/\b\+8\b/g, '+3')
+    .replace(/\bJourde\b/gi, 'lourde')
+    .replace(/\blééère\b/gi, 'légère')
+    .replace(/\s+/g, ' '));
+  const key = normalizeName(value);
+  const aliases = new Map([
+    ['armure-1-2-ou-8', 'Armure +1/+2/+3'],
+    ['armure-1-2-ou-3', 'Armure +1/+2/+3'],
+    ['armure-1-2-3', 'Armure +1/+2/+3'],
+    ['2-ou-8', 'Armure +1/+2/+3'],
+    ['2-ou-3', 'Armure +1/+2/+3'],
+    ['armure-en-adamantium', 'Armure d’adamantium'],
+    ['armure-dadamantium', 'Armure d’adamantium'],
+    ['armure-oe-resistance-au-froio-armure-dinvulnerabilite', 'Armure d’invulnérabilité'],
+    ['armure-de-resistance-au-froid-armure-dinvulnerabilite', 'Armure d’invulnérabilité'],
+    ['cuir-cloutee-glamour', 'Armure de cuir cloutée glamour'],
+    ['cuir-cloute-glamour', 'Armure de cuir cloutée glamour'],
+    ['harnois-nain-havresac-magique-ohevaro-harnois-ethere', 'Harnois éthéré'],
+    ['bouclier-1', 'Bouclier +1'],
+    ['bouclier-2', 'Bouclier +2'],
+    ['bouclier-3', 'Bouclier +3'],
+  ]);
+  return aliases.get(key) ?? value;
+}
+
+function canonicalItemName(name) {
+  let value = displayTitle(cleanMagicItemName(name)
+    .replace(/\bOE\b/g, 'de')
+    .replace(/\bloun\b/gi, 'Ioun')
+    .replace(/\bHévard\b/gi, 'Heward')
+    .replace(/\s+/g, ' '));
+  const key = normalizeName(value);
+  const aliases = new Map([
+    ['antidetection', 'Amulette d’antidétection'],
+    ['sort-anneau-de-resistance', 'Anneau de résistance'],
+    ['es-tresors-baguette-de-metamorphose', 'Baguette de métamorphose'],
+    ['baguette-de-metamorphose', 'Baguette de métamorphose'],
+    ['ee-ardente-elixir-de-sante', 'Élixir de santé'],
+    ['elixir-de-sante', 'Élixir de santé'],
+    ['fer', 'Flasque de fer'],
+    ['flasque-de-fer', 'Flasque de fer'],
+    ['menottes-dimensionnelles-oeil-de-lynx-miroir-demprisonnement', 'Miroir d’emprisonnement'],
+    ['menottes-dimensionnelles-il-de-lynx-miroir-demprisonnement', 'Miroir d’emprisonnement'],
+    ['miroir-demprisonnement', 'Miroir d’emprisonnement'],
+    ['p0t10n-de-clairvoyance', 'Potion de clairvoyance'],
+    ['potion-de-clairvoyance', 'Potion de clairvoyance'],
+    ['potion-de-soins', 'Potion de soins'],
+    ['potions-de-soins', 'Potion de soins'],
+    ['sac-sans-fond', 'Sac sans fond'],
+    ['alish-selle-du-cavalier', 'Selle du cavalier'],
+    ['selle-du-cavalier', 'Selle du cavalier'],
+    ['havresac-magique-d-hevard', 'Havresac magique d’Heward'],
+    ['havresac-magique-dheward', 'Havresac magique d’Heward'],
+    ['havresac-magique-d-heward', 'Havresac magique d’Heward'],
+    ['havresac-magique-dheward', 'Havresac magique d’Heward'],
+    ['sphere', 'Talisman de la sphère'],
+    ['talisman-de-la-sphere', 'Talisman de la sphère'],
+    ['pierre-de-loun', 'Pierre de Ioun'],
+    ['pierre-de-ioun', 'Pierre de Ioun'],
+    ['ceil-artificiel', 'Œil artificiel'],
+    ['oeil-artificiel', 'Œil artificiel'],
+    ['urbe-boussole', 'Orbe boussole'],
+    ['orbe-boussole', 'Orbe boussole'],
+    ['urbe-horloge', 'Orbe horloge'],
+    ['orbe-horloge', 'Orbe horloge'],
+    ['o-corde-descalade', 'Corde d’escalade'],
+  ]);
+  return aliases.get(key) ?? value;
+}
+
+function cleanMagicItemName(name) {
+  let value = cleanTitle(name)
+    .replace(/[{}]/g, '')
+    .replace(/^O-\s+/i, '')
+    .replace(/^O\s+(?=CORDE|CUBE|DAGUE|ELIXIR|ÉPÉE|EVENTAIL|FER|FERS|FIGURINE|FILTRE|FLASQUE|FLÈCHE|FLÛTE|FORTERESSE|GANTELETS|GANTS|GEMME|GLOBE|HACHE|HARNOIS|HAVRESAC|HEAUME|HUILE|INSTRUMENTS)\b/i, '')
+    .replace(/^(?:0N|ON)\s+(?=ANNEAU|ARMURE|BAGUETTE|BÂTON|BOTTES|BOUCLIER|CAPE|COTTE|HARNOIS|HAVRESAC)\b/i, '')
+    .replace(/\s+\d{1,3}$/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const itemWords = [
+    'AILES', 'AMULETTE', 'ANNEAU', 'ARC', 'ARME', 'ARMURE', 'BAGUETTE', 'BALAI', 'BANDEAU', 'BATEAU',
+    'BÂTON', 'BAUME', 'BOL', 'BOTTES', 'BOUCLIER', 'BOULE', 'BOUTEILLE', 'BRACELETS', 'BRASÉRO',
+    'BROCHE', 'CAPE', 'CAPUCHON', 'CARAFE', 'CARILLON', 'CARQUOIS', 'CARTES', 'CEINTURON',
+    'CHAPEAU', 'CHAPELET', 'CHEMISE', 'CHAUSSONS', 'CIERGE', 'COLLE', 'COLLIER', 'COR', 'CORDE',
+    'COTTE', 'CRUCHE', 'CUBE', 'DAGUE', 'DIADÈME', 'ELIXIR', 'ÉLIXIR', 'ENCENSOIR', 'ÉPÉE',
+    'EVENTAIL', 'ÉVENTAIL', 'FER', 'FERS', 'FIGURINE', 'FILTRE', 'FLASQUE', 'FLÈCHE', 'FLÛTE',
+    'FORTERESSE', 'GANTELETS', 'GANTS', 'GEMME', 'GLOBE', 'HACHE', 'HARNOIS', 'HAVRESAC',
+    'HEAUME', 'HUILE', 'INSTRUMENTS', 'JAVELINE', 'LAME', 'LANTERNE', 'LIVRE', 'LUNETTES',
+    'MANTEAU', 'MANUEL', 'MARTEAU', 'MASQUE', 'MÉDAILLON', 'MIROIR', 'PERLE', 'PIERRE', 'POTION',
+    'PUITS', 'SAC', 'SCEPTRE', 'SPHÈRE', 'TALISMAN', 'TAPIS', 'TOME',
+  ];
+  const keywordRe = new RegExp(`\\b(${itemWords.join('|')})\\b`, 'gi');
+  const matches = [...value.matchAll(keywordRe)];
+  if (matches.length > 1) value = value.slice(matches[matches.length - 1].index).trim();
+  return value;
+}
+
+function isLikelyMagicItemName(name) {
+  if (!name || name.length < 3 || name.length > 90) return false;
+  if (/^\d+$/.test(name)) return false;
+  if (/^\d/.test(name)) return false;
+  if (/^\d+\s+OU\s+\+\d/i.test(name) || /^\+\d/.test(name)) return false;
+  if (/[.!?]$/.test(name)) return false;
+  if (/^(Cette?|Ce|Vous|Si|Quand|Dans|Tant|Chaque|Sur|Au|Aux|De|Des|Les|Le|La|Un|Une)\b/i.test(name) && name.split(/\s+/).length > 4) return false;
+  if (name.split(/\s+/).length > 10) return false;
+  if (/^(Action|Actions|Réaction|Description|Source|Objet|Type|Harmonisation|Chapitre|Annexe|Table|d100|dl00|WWW|FOR|DEX|CON|INT|SAG|CHA)$/i.test(name)) return false;
+  if (/Classe d['’]armure|Points de vie|Vitesse|Jets de sauvegarde|Compétences|Dangerosité/i.test(name)) return false;
+  return true;
+}
+
+function isLikelyInlineCaption(name) {
+  const key = normalizeName(name);
+  if (/^(chapitre|tresors|les-tresors|objet|objets|magiques|table|resistance|effet|type|materiau|dl00|d100)/.test(key)) return true;
+  if (/^(oe|de|des|du|la|le|les|au|aux)-/.test(key) && name.split(/\s+/).length > 3) return true;
+  return false;
+}
+
+function isMagicArmorType(type) {
+  return /^(Armure|Bouclier)$/i.test(cleanText(type));
+}
+
+function normalizeMagicItemType(type) {
+  const cleaned = cleanText(type);
+  if (/^Objet merveilleux$/i.test(cleaned)) return 'Objet merveilleux';
+  if (/^Baton$/i.test(cleaned)) return 'Bâton';
+  return displayTitle(cleaned);
+}
+
+function normalizeBaseArmor(baseArmor) {
+  const cleaned = cleanText(baseArmor)
+    .replace(/\bJourde\b/gi, 'lourde')
+    .replace(/\blééère\b/gi, 'légère')
+    .replace(/\bau choix\b/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!cleaned) return '';
+  const key = normalizeName(cleaned);
+  const aliases = new Map([
+    ['legere-intermediaire-ou-lourde', 'Toute armure'],
+    ['legere-intermediaire-ou-jourde', 'Toute armure'],
+    ['toute-armure', 'Toute armure'],
+    ['armure-de-cuir-cloute', 'Armure de cuir cloutée'],
+    ['armure-de-cuir-cloutee', 'Armure de cuir cloutée'],
+    ['cuir-cloute', 'Armure de cuir cloutée'],
+    ['cuir-cloutee', 'Armure de cuir cloutée'],
+    ['armure-decailles', 'Armure d’écailles'],
+    ['armure-d-ecailles', 'Armure d’écailles'],
+    ['cotte-de-mailles', 'Cotte de mailles'],
+    ['chemise-de-mailles', 'Chemise de mailles'],
+    ['cuirasse', 'Cuirasse'],
+    ['clibanion', 'Clibanion'],
+    ['harnois', 'Harnois'],
+    ['bouclier', 'Bouclier'],
+  ]);
+  const alias = aliases.get(key);
+  if (alias) return alias;
+  const standard = STANDARD_ARMORS.find((armor) => normalizeName(armor.name) === key || key.includes(normalizeName(armor.name)));
+  if (standard) return standard.name;
+  return displayTitle(cleaned);
+}
+
+function inferBaseArmorFromName(name) {
+  const key = normalizeName(name);
+  for (const armor of STANDARD_ARMORS) {
+    const armorKey = normalizeName(armor.name);
+    if (key.includes(armorKey)) return armor.name;
+  }
+  if (/bouclier/.test(key)) return 'Bouclier';
+  if (/cuir-cloute/.test(key)) return 'Armure de cuir cloutée';
+  if (/cotte-de-mailles/.test(key)) return 'Cotte de mailles';
+  if (/chemise-de-mailles/.test(key)) return 'Chemise de mailles';
+  if (/ecailles/.test(key)) return 'Armure d’écailles';
+  return '';
+}
+
+function findBaseArmorData(baseArmor) {
+  const key = `armor:${normalizeName(canonicalArmorName(baseArmor))}`;
+  const row = entitiesByKey.get(key);
+  if (!row || row.categoryId !== CAT.armor) return null;
+  return row.data;
+}
+
+function inferArmorCategory(baseArmor, name) {
+  const base = findBaseArmorData(baseArmor);
+  if (base?.armorCategory) return base.armorCategory;
+  const key = normalizeName(`${baseArmor} ${name}`);
+  if (/bouclier/.test(key)) return 'Bouclier';
+  if (/legere|matelassee|cuir-cloutee?/.test(key)) return 'Légère';
+  if (/intermediaire|peau|chemise|ecailles|cuirasse|demi-plate/.test(key)) return 'Intermédiaire';
+  if (/lourde|broigne|cotte|clibanion|harnois/.test(key)) return 'Lourde';
+  return 'Magique';
+}
+
+function extractArmorDescriptions(text) {
+  const descriptions = new Map();
+  const names = STANDARD_ARMORS.map((armor) => armor.name);
+  for (let i = 0; i < names.length; i += 1) {
+    const name = names[i];
+    const start = normalizedIndexOf(text, `${name}.`);
+    if (start < 0) continue;
+    const nextIndexes = names.slice(i + 1)
+      .map((nextName) => normalizedIndexOf(text, `${nextName}.`, start + name.length))
+      .filter((index) => index > start);
+    const categoryStop = firstPositiveIndex([
+      normalizedIndexOf(text, 'ARMURES INTERMÉDIAIRES', start + name.length),
+      normalizedIndexOf(text, 'ARMURES LOURDES', start + name.length),
+      normalizedIndexOf(text, 'ARMES', start + name.length),
+      ...nextIndexes,
+    ], start + 900);
+    const description = cleanText(text.slice(start, categoryStop));
+    if (description.length > name.length + 8) descriptions.set(normalizeName(name), description);
+  }
+  return descriptions;
+}
+
 function canonicalWeaponName(name) {
   let value = displayTitle(cleanText(name)
     .replace(/\[[^\]]+\]/g, '')
@@ -2482,7 +3476,7 @@ function normalizeRangePart(value) {
 
 function parseWeaponRarity(text) {
   const value = normalizeMagicText(text);
-  const match = value.match(/(courante|peu commun|rare|très rare|légendaire|artefact)/i);
+  const match = value.match(/(peu commun(?:e)?|peu courant(?:e)?|très rare|légendaire|artefact|courant(?:e)?|rare)/i);
   return match ? normalizeRarity(match[1]) : '';
 }
 
@@ -2498,12 +3492,12 @@ function normalizeRarity(value) {
   const rarity = cleanText(value).toLowerCase();
   if (!rarity) return '';
   if (rarity.includes('variable')) return 'Variable';
-  if (rarity.includes('peu commun')) return 'Peu commun';
+  if (rarity.includes('peu commun') || rarity.includes('peu courant')) return 'Peu commun';
   if (rarity.includes('très rare')) return 'Très rare';
   if (rarity.includes('légendaire')) return 'Légendaire';
   if (rarity.includes('artefact')) return 'Artefact';
   if (rarity.includes('rare')) return 'Rare';
-  if (rarity.includes('courante')) return 'Courante';
+  if (rarity.includes('courant')) return 'Courante';
   return displayTitle(rarity);
 }
 

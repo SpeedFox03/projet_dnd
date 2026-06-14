@@ -61,7 +61,9 @@ function renderValue(field: FieldDef, value: unknown): React.ReactNode {
       return (
         <ul className="list-disc space-y-1 pl-5">
           {(value as string[]).map((item, i) => (
-            <li key={i}>{renderRollableText(String(item))}</li>
+            <li key={i}>
+              <RichText text={String(item)} />
+            </li>
           ))}
         </ul>
       );
@@ -74,7 +76,9 @@ function renderValue(field: FieldDef, value: unknown): React.ReactNode {
           {Object.entries(value as Record<string, unknown>).map(([k, v]) => (
             <div key={k} className="flex justify-between gap-2 rounded bg-bg-soft px-2 py-1">
               <span className="uppercase text-zinc-500">{k}</span>
-              <span className="font-medium text-zinc-100">{renderRollableText(String(v), k)}</span>
+              <span className="font-medium text-zinc-100">
+                {renderRollableText(String(v), { contextLabel: k, allowBareNegative: true })}
+              </span>
             </div>
           ))}
         </div>

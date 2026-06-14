@@ -8,9 +8,24 @@ import { useUser } from '@/hooks/use-user';
 import type { FieldDef, FieldType } from '@/types/domain';
 
 const FIELD_TYPES: FieldType[] = [
-  'text', 'textarea', 'rich', 'number', 'boolean',
+  'text', 'textarea', 'rich', 'image', 'number', 'boolean',
   'select', 'multiselect', 'tags', 'list', 'object',
 ];
+
+// Libellés lisibles (le commun des mortels), valeur technique conservée.
+const FIELD_TYPE_LABELS: Record<FieldType, string> = {
+  text: 'Texte court',
+  textarea: 'Texte long',
+  rich: 'Texte riche (liens, dés)',
+  image: 'Image',
+  number: 'Nombre',
+  boolean: 'Oui / Non',
+  select: 'Choix unique (menu)',
+  multiselect: 'Choix multiples',
+  tags: 'Étiquettes (tags)',
+  list: 'Liste à puces',
+  object: 'Caractéristiques (clé : valeur)',
+};
 
 interface DraftField extends FieldDef {
   _options?: string; // saisie brute des options (séparées par virgule)
@@ -105,11 +120,11 @@ export default function NewCategoryPage() {
               <label className="mb-1 block text-[10px] uppercase text-zinc-600">Libellé</label>
               <input className="input" value={f.label} onChange={(e) => updateField(i, { label: e.target.value, key: f.key || e.target.value })} />
             </div>
-            <div className="w-36">
-              <label className="mb-1 block text-[10px] uppercase text-zinc-600">Type</label>
+            <div className="w-56">
+              <label className="mb-1 block text-[10px] uppercase text-zinc-600">Type de champ</label>
               <select className="input" value={f.type} onChange={(e) => updateField(i, { type: e.target.value as FieldType })}>
                 {FIELD_TYPES.map((t) => (
-                  <option key={t} value={t}>{t}</option>
+                  <option key={t} value={t}>{FIELD_TYPE_LABELS[t]}</option>
                 ))}
               </select>
             </div>

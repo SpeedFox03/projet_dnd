@@ -2,6 +2,7 @@
 
 import { Fragment } from 'react';
 import { useDice } from '@/stores/dice-store';
+import { isRollable } from '@/lib/dice/roll';
 
 /**
  * Portion de texte cliquable qui lance une expression de dés.
@@ -33,31 +34,57 @@ export function Rollable({
   );
 }
 
-// Dés "3d8", "1d4 + 2", "d20" OU modificateur seul "+5", "-1".
-const TOKEN_RE = /(\d*d\d+(?:\s*[+-]\s*\d+)?|[+-]\s*\d+)/g;
+interface RollableOptions {
+  /** Étiquette pour les modificateurs seuls (ex. "SAG", "Force"). */
+  contextLabel?: string;
+  /** Autorise le `-N` nu (contextes structurés : caractéristiques). */
+  allowBareNegative?: boolean;
+}
 
 /**
- * Transforme un texte en nœuds React où chaque expression de dés / modificateur
- * devient cliquable (lance le dé). `contextLabel` sert d'étiquette pour les
- * modificateurs seuls (ex. "SAG", "Force"), sinon l'expression brute est utilisée.
+ * Transforme un texte en nœuds React où les jets de dés deviennent cliquables :
+ *  - `{ ... }`  -> syntaxe EXPLICITE (ex. `{1d8+4}`, `{+5}`, `{-2}`), affichée
+ *                 sans les accolades. À privilégier dans les fiches perso.
+ *  - `NdM(±K)`  -> dés détectés automatiquement (ex. `3d8`, `1d6+2`).
+ *  - `+N`       -> modificateur détecté automatiquement (jet 1d20 + N).
+ *  - `-N` nu    -> détecté UNIQUEMENT si `allowBareNegative` (sinon ambigu :
+ *                 plages "1-5", listes "- 3 potions"…). Sinon, utiliser `{-N}`.
  */
-export function renderRollableText(text: string, contextLabel?: string): React.ReactNode {
+export function renderRollableText(text: string, opts: RollableOptions = {}): React.ReactNode {
   if (!text) return text;
+  const { contextLabel, allowBareNegative } = opts;
+  const sign = allowBareNegative ? '[+-]' : '\\+';
+  const re = new RegExp(`(\\{[^}]+\\}|\\d*d\\d+(?:\\s*[+-]\\s*\\d+)?|${sign}\\s*\\d+)`, 'g');
+
   const nodes: React.ReactNode[] = [];
   let last = 0;
   let key = 0;
   let m: RegExpExecArray | null;
-  TOKEN_RE.lastIndex = 0;
 
-  while ((m = TOKEN_RE.exec(text)) !== null) {
+  while ((m = re.exec(text)) !== null) {
     const raw = m[0];
     if (m.index > last) nodes.push(<Fragment key={key++}>{text.slice(last, m.index)}</Fragment>);
-    const isDice = /d\d/.test(raw);
-    nodes.push(
-      <Rollable key={key++} expr={raw} label={isDice ? raw.trim() : (contextLabel ?? raw.trim())}>
-        {raw}
-      </Rollable>,
-    );
+
+    if (raw.startsWith('{')) {
+      // Syntaxe explicite : on retire les accolades pour l'affichage.
+      const inner = raw.slice(1, -1).trim();
+      if (isRollable(inner)) {
+        nodes.push(
+          <Rollable key={key++} expr={inner} label={contextLabel ?? inner}>
+            {inner}
+          </Rollable>,
+        );
+      } else {
+        nodes.push(<Fragment key={key++}>{inner}</Fragment>);
+      }
+    } else {
+      const isDice = /d\d/.test(raw);
+      nodes.push(
+        <Rollable key={key++} expr={raw} label={isDice ? raw.trim() : (contextLabel ?? raw.trim())}>
+          {raw}
+        </Rollable>,
+      );
+    }
     last = m.index + raw.length;
   }
   if (last < text.length) nodes.push(<Fragment key={key++}>{text.slice(last)}</Fragment>);

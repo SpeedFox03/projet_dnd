@@ -96,6 +96,14 @@ export function EntityEditor({
         </div>
       </div>
 
+      <p className="mb-4 rounded-md border border-border bg-bg-soft px-3 py-2 text-xs text-zinc-500">
+        🎲 Astuce : entourez un jet de <code className="text-accent">{'{ }'}</code> pour le rendre
+        cliquable — ex. <code className="text-accent">{'{1d8+4}'}</code>,{' '}
+        <code className="text-accent">{'{+5}'}</code>, <code className="text-accent">{'{-2}'}</code>.
+        Les dés <code className="text-accent">3d8</code> et modificateurs{' '}
+        <code className="text-accent">+5</code> sont aussi détectés automatiquement.
+      </p>
+
       {/* Champs de tête (communs à toutes les catégories) */}
       <div className="card mb-4 space-y-3 p-4">
         <div>
